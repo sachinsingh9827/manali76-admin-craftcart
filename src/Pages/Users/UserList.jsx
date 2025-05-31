@@ -1,29 +1,54 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import axios from "axios";
 import Button from "../../components/Reusable/Button";
 
-const mockUsers = [
-  {
-    _id: "6832014c2b68ed7cb9a2c940",
-    name: "Sachin Singh",
-    email: "sachinsingh020406@gmail.com",
-  },
-  // Add more mock users here
-];
-
 const UserList = () => {
+  const [users, setUsers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        setLoading(true);
+        setError(null);
+        const response = await axios.get("/api/admin/auth/users"); // Replace with your actual API endpoint
+        setUsers(response.data); // Adjust this depending on your API response shape
+      } catch (err) {
+        setError("Failed to load users.");
+        console.error(err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUsers();
+  }, []);
+
+  if (loading) {
+    return <p>Loading users...</p>;
+  }
+
+  if (error) {
+    return <p className="text-red-600">{error}</p>;
+  }
+
+  if (!users.length) {
+    return <p>No users found.</p>;
+  }
 
   return (
     <div className="space-y-4 p-2">
-      {mockUsers.map((user) => (
+      {users.map((user) => (
         <div
           key={user._id}
           className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center"
         >
           <div>
             <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-              {user.name}
+              {user.name || user.username}
             </h3>
             <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
           </div>

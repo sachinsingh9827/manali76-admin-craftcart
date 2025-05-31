@@ -4,7 +4,7 @@ import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import NoDataFound from "../../components/Reusable/NoDataFound";
-
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 const AdminProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -14,9 +14,7 @@ const AdminProductDetails = () => {
 
   const fetchProduct = async () => {
     try {
-      const res = await axios.get(
-        `http://localhost:5000/api/admin/protect/${id}`
-      );
+      const res = await axios.get(`${BASE_URL}/api/admin/protect/${id}`);
       setProduct(res.data.data);
       setLoading(false);
     } catch (err) {
@@ -30,7 +28,7 @@ const AdminProductDetails = () => {
     const updatedStatus = !product.isAvailable;
     setUpdating(true);
     try {
-      await axios.put(`http://localhost:5000/api/admin/protect/${id}`, {
+      await axios.put(`${BASE_URL}/api/admin/protect/${id}`, {
         isAvailable: updatedStatus,
       });
       setProduct((prev) => ({ ...prev, isAvailable: updatedStatus }));
@@ -64,7 +62,7 @@ const AdminProductDetails = () => {
         {product.images.map((img, i) => (
           <img
             key={i}
-            src={`http://localhost:5000/uploads/${img}`}
+            src={`${BASE_URL}/uploads/${img}`}
             alt={`Product ${i}`}
             onClick={() =>
               setSelectedImage(`http://localhost:5000/uploads/${img}`)

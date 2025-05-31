@@ -5,7 +5,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import AdminProductDetails from "./AdminProductDetails";
-
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 const validationSchema = Yup.object({
   name: Yup.string().required("Required"),
   price: Yup.number().required("Required").positive("Must be positive"),
@@ -46,7 +46,7 @@ const ProductForm = () => {
 
     setLoading(true);
     axios
-      .get(`http://localhost:5000/api/admin/protect/${id}`)
+      .get(`${BASE_URL}/api/admin/protect/${id}`)
       .then((res) => {
         if (res.data.success) {
           const product = res.data.data;
@@ -108,8 +108,8 @@ const ProductForm = () => {
 
     try {
       const url = isUpdate
-        ? `http://localhost:5000/api/admin/protect/${id}`
-        : `http://localhost:5000/api/admin/protect`;
+        ? `${BASE_URL}/api/admin/protect/${id}`
+        : `${BASE_URL}/api/admin/protect`;
       const method = isUpdate ? "put" : "post";
 
       const res = await axios({
@@ -163,7 +163,7 @@ const ProductForm = () => {
                     {existingImages.map((img, idx) => (
                       <img
                         key={"existing-" + idx}
-                        src={`http://localhost:5000/uploads/${img}`}
+                        src={`${BASE_URL}/uploads/${img}`}
                         alt={`Existing Product ${idx}`}
                         className="w-20 h-20 object-cover rounded-md border border-gray-300 dark:border-gray-600"
                       />
