@@ -1,31 +1,92 @@
-.App {
-  text-align: center;
+/* Base reset & font */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  font-family: "Montserrat", sans-serif;
 }
 
-.App-logo {
-  height: 40vmin;
-  pointer-events: none;
+/* Light theme */
+.App.light {
+  color: black;
+  background-color: #f9f9f9;
+  background-image: url('https://cdn.stocksnap.io/img-thumbs/280h/rainbow-sky_IZ8N7DMHGX.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  margin-top: -20px;
+  animation: bgMove 20s infinite ease-in-out;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  .App-logo {
-    animation: App-logo-spin infinite 20s linear;
+/* Dark theme */
+.App.dark {
+  color: white;
+  background-color: #121212;
+  background-image: url('https://cdn.stocksnap.io/img-thumbs/280h/rainbow-sky_IZ8N7DMHGX.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  min-height: 100vh;
+  margin-top: -20px;
+  animation: bgMove 20s infinite ease-in-out;
+}
+
+/* Animation stays the same */
+@keyframes bgMove {
+  0% {
+    transform: rotateX(0deg) rotateY(0deg) scale(1);
+    background-position: center;
+  }
+  50% {
+    transform: rotateX(5deg) rotateY(10deg) scale(1.03);
+    background-position: 55% 45%;
+  }
+  100% {
+    transform: rotateX(-5deg) rotateY(-10deg) scale(1);
+    background-position: center;
   }
 }
 
+/* Header */
 .App-header {
-  background-color: #282c34;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   font-size: calc(10px + 2vmin);
+  margin-top: 0;
+}
+
+/* Header background for light & dark */
+.App.light .App-header {
+  background-color: rgba(255, 255, 255, 0.85);
+  color: black;
+}
+.App.dark .App-header {
+  background-color: rgba(40, 44, 52, 0.85);
   color: white;
 }
 
+/* Links */
 .App-link {
   color: #61dafb;
+}
+
+/* Logo */
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+/* Logo spin animation */
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
 }
 
 @keyframes App-logo-spin {
