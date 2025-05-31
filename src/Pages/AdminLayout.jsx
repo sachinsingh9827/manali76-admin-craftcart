@@ -4,6 +4,9 @@ import AdminSidebar from "./AdminSidebar";
 
 const AdminLayout = () => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const user = JSON.parse(localStorage.getItem("user"));
+  const username = user?.username || "";
+  const firstName = username.split(" ")[0];
 
   return (
     <div className="flex h-screen bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100 font-montserrat ">
@@ -19,7 +22,8 @@ const AdminLayout = () => {
         <header className="flex items-center border-b border-gray-300 dark:border-yellow-400 justify-between bg-[#004080] text-white dark:bg-gray-900 shadow px-4 h-16 md:hidden">
           <div>
             {" "}
-            <h2 className=" text-2xl font-bold uppercase">Admin Panel</h2>
+            Welcome
+            {firstName && <span className=" ml-2">{firstName}</span>}
           </div>
           {!sidebarOpen && (
             <button
