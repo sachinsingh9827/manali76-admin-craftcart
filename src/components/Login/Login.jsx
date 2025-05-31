@@ -31,17 +31,17 @@ const LoginPage = () => {
       const { success, message, data: userData } = data;
 
       if (success) {
-        toast.success(message || "Login successful");
         console.log("User role:", userData.role);
 
         if (userData.role?.toLowerCase() === "admin") {
+          toast.success(message || "Login successful");
           auth.login(userData, userData.token);
           resetForm();
           navigate("/admin");
         } else {
-          // Normal user - don't save token in localStorage
+          // Not admin - show error toast and don't login or navigate
+          toast.error("You are not authorized for this account");
           resetForm();
-          navigate("/");
         }
       } else {
         toast.error(message || "Login failed");
