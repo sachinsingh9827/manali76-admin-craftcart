@@ -52,7 +52,7 @@ const ProductForm = () => {
           const product = res.data.data;
           setIsUpdate(true);
           setExistingImages(product.images || []);
-          if (formikRef.current) {
+          if (formikRef.current && formikRef.current.setValues) {
             formikRef.current.setValues({
               name: product.name || "",
               price: product.price || "",
@@ -60,7 +60,7 @@ const ProductForm = () => {
               category: product.category || "",
               brand: product.brand || "",
               stock: product.stock || "",
-              createdBy: "",
+              createdBy: product.createdBy || "",
               images: [],
             });
           }

@@ -64,9 +64,7 @@ const AdminProductDetails = () => {
             key={i}
             src={`${BASE_URL}/uploads/${img}`}
             alt={`Product ${i}`}
-            onClick={() =>
-              setSelectedImage(`http://localhost:5000/uploads/${img}`)
-            }
+            onClick={() => setSelectedImage(`${BASE_URL}/uploads/${img}`)}
             className="w-20 h-20 object-cover border border-gray-300 rounded-md cursor-pointer hover:scale-105 transition"
           />
         ))}

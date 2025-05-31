@@ -4,7 +4,7 @@ import Pagination from "../../components/Reusable/Pagination";
 import NoDataFound from "../../components/Reusable/NoDataFound";
 
 const PAGE_SIZE = 5;
-
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
@@ -18,7 +18,7 @@ const ProductList = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `http://localhost:5000/api/admin/protect?search=${encodeURIComponent(
+          `${BASE_URL}/api/admin/protect?search=${encodeURIComponent(
             searchTerm
           )}&page=${page}&limit=${PAGE_SIZE}`
         );
