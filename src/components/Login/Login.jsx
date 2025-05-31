@@ -33,14 +33,19 @@ const LoginPage = () => {
       if (success) {
         toast.success(message || "Login successful");
 
-        // Save token to localStorage (you may already do this inside auth.login)
-        localStorage.setItem("token", userData.token);
+        if (userData.role === "admin") {
+          // Save token and user data only if admin
+          localStorage.setItem("token", userData.token);
+          auth.login(userData, userData.token);
 
-        // Use your auth context login method to update state
-        auth.login(userData, userData.token);
-
-        resetForm();
-        navigate("/admin"); // Redirect after successful login
+          resetForm();
+          navigate("/admin"); // Redirect to admin dashboard
+        } else {
+          // Not admin - no localStorage saving
+          // You can update your auth context if needed, or not
+          resetForm();
+          navigate("/"); // Redirect to home or normal user page
+        }
       } else {
         toast.error(message || "Login failed");
       }
