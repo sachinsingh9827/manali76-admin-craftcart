@@ -1,68 +1,108 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/Reusable/Button";
-
-const initialContactInfo = {
-  address: "123 Craft St, Handmade City",
-  phone: "+1 (234) 567-890",
-  email: "support@craft-cart.com",
-  instagram: "craftcart_insta",
-  facebook: "craftcart_fb",
-  linkedin: "craftcart_li",
-};
-
+import ReusableTable from "../../components/Reusable/ReusableTable";
+import axios from "axios";
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 const ContactInfoAdmin = () => {
-  const [contactInfo] = useState(initialContactInfo);
+  const [contactList, setContactList] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [message, setMessage] = useState("");
   const navigate = useNavigate();
 
-  const handleEditClick = () => {
-    navigate("/admin/contact/edit", { state: { contactInfo } });
+  const handleEditClick = (contact) => {
+    navigate("/admin/contact/edit", { state: { contactInfo: contact } });
   };
 
-  const renderField = (label, value, isUsername = false) => (
-    <div className="flex flex-col mb-4 sm:mb-0">
-      <span className="font-semibold text-gray-700 dark:text-yellow-400 mb-1">
-        {label}
-      </span>
-      <span className="text-gray-900 dark:text-gray-300 break-words">
-        {isUsername && value ? `@${value}` : value || "-"}
-      </span>
-    </div>
-  );
+  useEffect(() => {
+    const fetchContactInfo = async () => {
+      try {
+        const res = await axios.get(`${BASE_URL}/api/contact-info`);
+        const contacts = res.data.data;
+
+        setMessage(res.data.message || "No contact information found.");
+
+        if (Array.isArray(contacts) && contacts.length > 0) {
+          // Sort by updatedAt descending
+          const sortedContacts = contacts.sort(
+            (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt)
+          );
+          setContactList(sortedContacts);
+        } else {
+          setContactList([]);
+        }
+      } catch (error) {
+        console.error("Failed to fetch contact info:", error);
+        setContactList([]);
+        setMessage("Failed to load contact information.");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchContactInfo();
+  }, []);
+
+  const columns = [
+    { header: "Field", accessor: "label" },
+    { header: "Value", accessor: "value" },
+  ];
+
+  const generateTableData = (contact) => [
+    { label: "Phone", value: contact.phone || "-" },
+    { label: "Email", value: contact.email || "-" },
+    { label: "Instagram", value: contact.instagram || "-" },
+    { label: "Facebook", value: contact.facebook || "-" },
+    { label: "LinkedIn", value: contact.linkedin || "-" },
+    { label: "Address", value: contact.address || "-" },
+  ];
 
   return (
-    <div className="p-6 bg-white dark:bg-gray-900 rounded-md shadow-md  mx-auto mt-8">
-      <h2 className="text-3xl font-bold mb-6 text-[#004080] dark:text-yellow-400 text-center">
+    <div className="max-w-full m-2 bg-white dark:bg-gray-800 shadow-md rounded-md p-4 border border-gray-200 dark:border-gray-700">
+      <h2 className="text-sm uppercase font-bold text-[#004080] dark:text-yellow-400 text-center sm:text-left mb-4">
         Contact Us Info
       </h2>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-12 gap-y-6 mb-6">
-        {renderField("Phone", contactInfo.phone)}
-        {renderField("Email", contactInfo.email)}
-        {renderField("Instagram", contactInfo.instagram, true)}
-        {renderField("Facebook", contactInfo.facebook)}
-        {renderField("LinkedIn", contactInfo.linkedin)}
-        {/* Empty grid item to keep layout consistent */}
-        <div></div>
-      </div>
-
-      <div className="mb-6">
-        <span className="font-semibold text-gray-700 dark:text-yellow-400 mb-1 block">
-          Address
-        </span>
-        <p className="text-gray-900 dark:text-gray-300">
-          {contactInfo.address}
+      {loading ? (
+        <p className="text-center text-gray-500 dark:text-gray-400">
+          Loading...
         </p>
-      </div>
-
-      <div className="text-center">
-        <Button
-          onClick={handleEditClick}
-          className="px-6 py-2 w-full sm:w-auto"
-        >
-          Edit Contact Info
-        </Button>
-      </div>
+      ) : contactList.length === 0 ? (
+        <p className="text-center text-gray-500 dark:text-gray-400">
+          {message}
+        </p>
+      ) : (
+        contactList.map((contact, index) => (
+          <div
+            key={contact._id}
+            className="mb-8 border-t pt-4 border-gray-300 dark:border-gray-600"
+          >
+            <div className="flex flex-col sm:flex-row justify-between items-center mb-2">
+              <p className="font-semibold">
+                Contact #{index + 1} —{" "}
+                <span
+                  className={`${
+                    contact.isActive ? "text-green-600" : "text-red-600"
+                  }`}
+                >
+                  {contact.isActive ? "Active" : "Not Active"}
+                </span>
+              </p>
+              <Button
+                onClick={() => handleEditClick(contact)}
+                className="px-6 py-2 mt-2 sm:mt-0"
+              >
+                Edit
+              </Button>
+            </div>
+            <ReusableTable
+              columns={columns}
+              data={generateTableData(contact)}
+              noDataMessage="No data found"
+            />
+          </div>
+        ))
+      )}
     </div>
   );
 };

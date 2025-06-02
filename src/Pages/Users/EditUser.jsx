@@ -2,7 +2,12 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../components/Reusable/Button";
+import ReusableTable from "../../components/Reusable/ReusableTable"; // Adjust import path
+import LoadingPage from "../../components/Navbar/LoadingPage";
+import NoDataFound from "../../components/Reusable/NoDataFound";
+
 const BASE_URL = "https://craft-cart-backend.vercel.app";
+
 const EditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -25,13 +30,13 @@ const EditUser = () => {
         const response = await axios.get(
           `${BASE_URL}/api/admin/auth/users/${id}`
         );
-        const data = response.data.data; // Adjusted based on API structure
+        const { user, messages } = response.data.data;
 
-        setUser(data);
-        setName(data.name || "");
-        setEmail(data.email || "");
-        setIsActive(data.isActive ?? true);
-        setMessages(data.messages || []);
+        setUser(user);
+        setName(user.name || "");
+        setEmail(user.email || "");
+        setIsActive(user.isActive ?? true);
+        setMessages(messages || []);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch user");
       } finally {
@@ -45,7 +50,7 @@ const EditUser = () => {
   if (loading) {
     return (
       <p className="text-center text-gray-700 dark:text-gray-300 mt-8">
-        Loading user data...
+        <LoadingPage />
       </p>
     );
   }
@@ -59,7 +64,7 @@ const EditUser = () => {
   if (!user) {
     return (
       <p className="text-center text-gray-900 dark:text-white mt-8">
-        User not found
+        <NoDataFound />
       </p>
     );
   }
@@ -68,7 +73,7 @@ const EditUser = () => {
     e.preventDefault();
 
     try {
-      await axios.put(`/api/users/${id}`, {
+      await axios.put(`${BASE_URL}/api/users/${id}`, {
         name,
         email,
         isActive,
@@ -83,7 +88,7 @@ const EditUser = () => {
   const toggleAvailability = async () => {
     setUpdating(true);
     try {
-      await axios.put(`/api/users/${id}/status`, {
+      await axios.put(`${BASE_URL}/api/users/${id}/status`, {
         isActive: !isActive,
       });
       setIsActive((prev) => !prev);
@@ -94,15 +99,65 @@ const EditUser = () => {
     }
   };
 
+  // Columns for messages table
+  const messageColumns = [
+    { header: "Message", accessor: "message" },
+    {
+      header: "Date",
+      accessor: "createdAt",
+      render: (row) => new Date(row.createdAt).toLocaleString(),
+    },
+  ];
+
+  // Columns for the action buttons table
+  const actionColumns = [
+    { header: "Action", accessor: "label" },
+    {
+      header: "Button",
+      accessor: "button",
+      render: (row) => row.button,
+    },
+  ];
+
+  // Data for the action buttons table
+  const actionData = [
+    {
+      id: 1,
+      label: "Save Changes",
+      button: (
+        <Button type="submit" className="w-full">
+          Save Changes
+        </Button>
+      ),
+    },
+    {
+      id: 2,
+      label: isActive ? "Mark as Not Available" : "Mark as Available",
+      button: (
+        <Button
+          onClick={toggleAvailability}
+          disabled={updating}
+          className="w-full"
+        >
+          {updating
+            ? "Updating..."
+            : isActive
+            ? "Mark as Not Available"
+            : "Mark as Available"}
+        </Button>
+      ),
+    },
+  ];
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 sm:p-8">
-      <h2 className="text-3xl font-semibold mb-6 text-gray-900 dark:text-white text-center sm:text-left">
-        Edit User
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-2 sm:p-6">
+      <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white text-start sm:text-left">
+        All User details
       </h2>
 
-      <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 max-w-5xl mx-auto">
+      <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 max-w-full mx-auto">
         {/* Form Section */}
-        <div className="flex-1 bg-white dark:bg-gray-800 p-6 rounded shadow">
+        <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded shadow max-w-full">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="block font-medium text-gray-900 dark:text-gray-200 mb-1">
@@ -130,38 +185,15 @@ const EditUser = () => {
               />
             </div>
 
-            <div className="flex items-center space-x-3">
-              <input
-                id="isActive"
-                type="checkbox"
-                checked={isActive}
-                onChange={() => setIsActive(!isActive)}
-                className="w-5 h-5 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
-              />
-              <label
-                htmlFor="isActive"
-                className="text-gray-900 dark:text-gray-200 font-medium"
-              >
-                Active User
-              </label>
+            {/* Action Buttons inside reusable table */}
+            <div className="overflow-x-auto">
+              <ReusableTable columns={actionColumns} data={actionData} />
             </div>
-
-            <Button type="submit">Save Changes</Button>
           </form>
-
-          <div className="mt-6">
-            <Button onClick={toggleAvailability} disabled={updating}>
-              {updating
-                ? "Updating..."
-                : isActive
-                ? "Mark as Not Available"
-                : "Mark as Available"}
-            </Button>
-          </div>
         </div>
 
         {/* Messages Section */}
-        <div className="flex-1 bg-white dark:bg-gray-800 p-6 rounded shadow max-h-[400px] overflow-y-auto">
+        <div className="flex-1 bg-white dark:bg-gray-800 p-6 rounded shadow max-h-[400px] overflow-y-auto max-w-full">
           <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
             User Messages
           </h3>
@@ -170,17 +202,13 @@ const EditUser = () => {
               No messages to show.
             </p>
           ) : (
-            <ul className="list-disc list-inside space-y-2 text-gray-800 dark:text-gray-300">
-              {messages.map((msg, idx) => (
-                <li key={idx}>{msg}</li>
-              ))}
-            </ul>
+            <ReusableTable columns={messageColumns} data={messages} />
           )}
         </div>
       </div>
 
       {/* Additional Info */}
-      <div className="max-w-5xl mx-auto mt-8 bg-white dark:bg-gray-800 p-6 rounded shadow">
+      <div className="max-w-full mx-auto mt-8 bg-white dark:bg-gray-800 p-6 rounded shadow">
         <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
           User Info
         </h3>

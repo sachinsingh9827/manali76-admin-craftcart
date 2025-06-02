@@ -1,10 +1,13 @@
+// src/pages/Admin/UserList.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
-import Button from "../../components/Reusable/Button";
 import Pagination from "../../components/Reusable/Pagination";
 import NoDataFound from "../../components/Reusable/NoDataFound";
 import LoadingPage from "../../components/Navbar/LoadingPage";
+import ReusableTable from "../../components/Reusable/ReusableTable";
+import Button from "../../components/Reusable/Button";
+
 const PAGE_SIZE = 5;
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -48,7 +51,7 @@ const UserList = () => {
     fetchUsers();
   }, [page, searchTerm]);
 
-  // Optional: client-side filtering if API search isn't perfect
+  // Optional: filteredUsers to also filter locally if needed (can be removed if backend search is enough)
   const filteredUsers = users.filter(
     (user) =>
       user.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -56,8 +59,8 @@ const UserList = () => {
   );
 
   return (
-    <div className="p-4 sm:p-6 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <h2 className="text-xl sm:text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100 text-center sm:text-left">
+    <div className="p-2 sm:p-2 bg-gray-50 dark:bg-gray-900 min-h-screen">
+      <h2 className="text-sm uppercase font-semibold mb-2 text-gray-900 dark:text-gray-100 text-center sm:text-left">
         User List
       </h2>
 
@@ -71,7 +74,7 @@ const UserList = () => {
             setSearchTerm(e.target.value);
             setPage(1); // Reset to page 1 on new search
           }}
-          className="p-2 sm:p-3 border rounded w-full sm:max-w-xs
+          className="p-2 sm:p-1 border rounded w-full sm:max-w-xs
             text-gray-900 dark:text-gray-100
             bg-white dark:bg-gray-800
             border-gray-300 dark:border-gray-600
@@ -81,17 +84,10 @@ const UserList = () => {
         />
       </div>
 
-      {/* Loading state */}
+      {/* Loading */}
       {loading && (
         <p className="text-center text-gray-700 dark:text-gray-300 mb-4">
           <LoadingPage />
-        </p>
-      )}
-
-      {/* Error */}
-      {error && (
-        <p className="text-center text-red-600 dark:text-red-400 mb-4">
-          {error}
         </p>
       )}
 
@@ -102,32 +98,37 @@ const UserList = () => {
         </div>
       )}
 
-      {/* User List */}
-      <div className="space-y-4">
-        {filteredUsers.map((user) => (
-          <div
-            key={user._id}
-            className="bg-white dark:bg-gray-800 p-4 rounded shadow flex justify-between items-center cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-700 transition"
-            onClick={() => navigate(`/admin/users/edit/${user._id}`)}
-          >
-            <div>
-              <h3 className="font-semibold text-lg text-gray-900 dark:text-white">
-                {user.name || user.username}
-              </h3>
-              <p className="text-gray-600 dark:text-gray-300">{user.email}</p>
-            </div>
-            <Button
-              className="px-4 py-2"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/admin/users/edit/${user._id}`);
-              }}
-            >
-              Edit
-            </Button>
-          </div>
-        ))}
-      </div>
+      {/* Table */}
+      {!loading && !error && filteredUsers.length > 0 && (
+        <ReusableTable
+          columns={[
+            {
+              header: "SN.",
+              accessor: "sn",
+              render: (_, index) => index + 1, // Show serial number using index
+            },
+            { header: "Name", accessor: "name" },
+            { header: "Email", accessor: "email" },
+            {
+              header: "Actions",
+              accessor: "actions",
+              render: (user) => (
+                <Button
+                  onClick={(e) => {
+                    e.stopPropagation(); // Prevent triggering onRowClick
+                    navigate(`/admin/users/edit/${user._id}`);
+                  }}
+                  className="text-sm px-2 py-1"
+                >
+                  View
+                </Button>
+              ),
+            },
+          ]}
+          data={filteredUsers}
+          onRowClick={(user) => navigate(`/admin/users/edit/${user._id}`)}
+        />
+      )}
 
       {/* Pagination */}
       {users.length > 0 && (

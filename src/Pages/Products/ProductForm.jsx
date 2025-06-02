@@ -5,6 +5,7 @@ import * as Yup from "yup";
 import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import AdminProductDetails from "./AdminProductDetails";
+import LoadingPage from "../../components/Navbar/LoadingPage";
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 const validationSchema = Yup.object({
   name: Yup.string().required("Required"),
@@ -135,20 +136,24 @@ const ProductForm = () => {
   };
 
   if (loading)
-    return <div className="text-center py-10">Loading product...</div>;
+    return (
+      <div className="text-center py-10">
+        <LoadingPage />
+      </div>
+    );
   if (error)
-    return <div className="text-red-600 text-center py-4">{error}</div>;
+    return <div className="text-red-600 text-center py-2">{error}</div>;
 
   return (
-    <div className="font-montserrat w-full px-2 sm:px-6 py-4">
-      <h2 className="text-2xl font-semibold mb-6 text-center">
-        {isUpdate ? "Update Product" : "Add Product"}
+    <div className="font-montserrat w-full ">
+      <h2 className="text-sm uppercase font-semibold mb-2 text-start">
+        {isUpdate ? "Update Product" : "Add New Product"}
       </h2>
 
       {/* Flex container for form + details */}
       <div className="flex flex-col lg:flex-row gap-8 items-start">
         {/* FORM */}
-        <div className="w-full lg:w-2/3 bg-white dark:bg-gray-900 shadow-md rounded-md p-5">
+        <div className="w-full bg-white dark:bg-gray-800 shadow-md rounded-md p-2 border border-gray-200 dark:border-gray-700">
           <Formik
             innerRef={formikRef}
             initialValues={initialValues}
@@ -295,7 +300,11 @@ const ProductForm = () => {
                 </div>
 
                 {/* Submit Button */}
-                <Button type="submit" disabled={isSubmitting}>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="ml-auto"
+                >
                   {isSubmitting
                     ? "Submitting..."
                     : isUpdate
@@ -309,7 +318,7 @@ const ProductForm = () => {
 
         {/* ADMIN PRODUCT DETAILS */}
         {isUpdate && (
-          <div className="w-full lg:w-1/3 bg-white dark:bg-gray-900 shadow-md rounded-md p-5">
+          <div className="w-full bg-white dark:bg-gray-800 shadow-md rounded-md p-4 border border-gray-200 dark:border-gray-700">
             <AdminProductDetails />
           </div>
         )}
