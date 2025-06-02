@@ -58,13 +58,14 @@ const AdminProductDetails = () => {
       <h2 className="text-xl font-bold mb-4 text-center">Product Details</h2>
 
       {/* Images */}
+      {/* Images */}
       <div className="flex gap-2 mb-4 flex-wrap">
-        {product.images.map((img, i) => (
+        {product.images.map((imgObj, i) => (
           <img
             key={i}
-            src={`${BASE_URL}/uploads/${img}`}
+            src={imgObj.url} // Direct URL from backend
             alt={`Product ${i}`}
-            onClick={() => setSelectedImage(`${BASE_URL}/uploads/${img}`)}
+            onClick={() => setSelectedImage(imgObj.url)}
             className="w-20 h-20 object-cover border border-gray-300 rounded-md cursor-pointer hover:scale-105 transition"
           />
         ))}

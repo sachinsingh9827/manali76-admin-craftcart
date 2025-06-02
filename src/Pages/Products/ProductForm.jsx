@@ -165,10 +165,10 @@ const ProductForm = () => {
               <Form className="space-y-5">
                 {(existingImages.length > 0 || newImagesPreview.length > 0) && (
                   <div className="flex flex-wrap gap-3 mb-5">
-                    {existingImages.map((img, idx) => (
+                    {existingImages.map((imgObj, idx) => (
                       <img
                         key={"existing-" + idx}
-                        src={`${BASE_URL}/uploads/${img}`} // <-- this must be a valid URL
+                        src={imgObj.url} // Backend image URL
                         alt={`Existing Product ${idx}`}
                         className="w-20 h-20 object-cover rounded-md border border-gray-300 dark:border-gray-600"
                       />
@@ -177,7 +177,7 @@ const ProductForm = () => {
                     {newImagesPreview.map((src, idx) => (
                       <img
                         key={"new-" + idx}
-                        src={src}
+                        src={src} // New image preview URL (from File objects)
                         alt={`New Upload ${idx}`}
                         className="w-20 h-20 object-cover rounded-md border border-blue-400"
                       />
