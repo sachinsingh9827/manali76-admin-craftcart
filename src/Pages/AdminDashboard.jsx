@@ -3,6 +3,7 @@ import React from "react";
 import { useSelector } from "react-redux";
 import AdminPageNavbar from "../components/Navbar/AdminPageNavbar";
 import CommonCard from "../components/Reusable/CommonCard";
+import LoadingPage from "../components/Navbar/LoadingPage";
 
 const AdminDashboard = () => {
   const { stats, loading } = useSelector((state) => state.dashboard);
@@ -36,7 +37,9 @@ const AdminDashboard = () => {
       <AdminPageNavbar />
       <div className="p-6">
         {loading ? (
-          <p className="text-center text-gray-500">Loading dashboard...</p>
+          <p className="text-center text-gray-500">
+            <LoadingPage />
+          </p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {cards.map((card) => (

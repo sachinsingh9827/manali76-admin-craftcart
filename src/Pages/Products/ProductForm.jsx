@@ -168,11 +168,12 @@ const ProductForm = () => {
                     {existingImages.map((img, idx) => (
                       <img
                         key={"existing-" + idx}
-                        src={`${BASE_URL}/uploads/${img}`}
+                        src={`${BASE_URL}/uploads/${img}`} // <-- this must be a valid URL
                         alt={`Existing Product ${idx}`}
                         className="w-20 h-20 object-cover rounded-md border border-gray-300 dark:border-gray-600"
                       />
                     ))}
+
                     {newImagesPreview.map((src, idx) => (
                       <img
                         key={"new-" + idx}
