@@ -1,77 +1,157 @@
-import React from "react";
-import LoadingPage from "../Navbar/LoadingPage";
+import React, { useState } from "react";
+import Button from "./Button";
 
 const Pagination = ({ page, totalPages, onPageChange, loading }) => {
+  const [startIndex, setStartIndex] = useState(0);
+  const maxVisiblePages = 3;
+
+  const getVisiblePages = () => {
+    const pages = [];
+    const end = Math.min(startIndex + maxVisiblePages, totalPages);
+    for (let i = startIndex + 1; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  };
+
+  const handleScrollLeft = () => {
+    if (startIndex > 0) setStartIndex(startIndex - 1);
+  };
+
+  const handleScrollRight = () => {
+    if (startIndex + maxVisiblePages < totalPages)
+      setStartIndex(startIndex + 1);
+  };
+
   return (
     <nav
       aria-label="Pagination Navigation"
-      className="mt-6 flex flex-row justify-center items-center space-x-3 px-2 sm:px-0"
+      className="mt-6 flex flex-wrap justify-center items-center gap-3 px-2 sm:px-4"
     >
-      <button
+      {/* Previous Button */}
+      <Button
         aria-label="Previous page"
         disabled={page === 1 || loading}
         onClick={() => onPageChange(page - 1)}
-        className={`px-3 py-1.5 rounded transition-colors duration-200
-      ${
-        page === 1 || loading
-          ? "bg-gray-400 cursor-not-allowed text-gray-700"
-          : "bg-blue-600 hover:bg-blue-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-      }
-      sm:px-4 sm:py-2 sm:w-auto w-24
-    `}
+        className="px-3 py-1.5 rounded sm:px-4 sm:py-2 sm:w-auto w-24 text-sm sm:text-base"
+        // You can customize these or use default:
+        bgColor={page === 1 || loading ? "bg-gray-400" : "bg-[#004080]"}
+        hoverBgColor={page === 1 || loading ? "" : "hover:bg-gray-700"}
+        textColor={page === 1 || loading ? "text-gray-700" : "text-yellow-400"}
+        darkBgColor={page === 1 || loading ? "" : "dark:bg-gray-700"}
+        darkHoverBgColor={
+          page === 1 || loading ? "" : "dark:hover:bg-[#004080]"
+        }
+        darkTextColor={page === 1 || loading ? "" : "dark:text-yellow-400"}
       >
-        {loading && page !== 1 ? (
-          <span className="flex items-center justify-center text-sm sm:text-base">
-            <svg
-              className="animate-spin -ml-1 mr-2 h-4 w-4 text-white"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              aria-hidden="true"
+        Prev
+      </Button>
+
+      {/* Scroll Left Button */}
+      {totalPages > maxVisiblePages && (
+        <Button
+          onClick={handleScrollLeft}
+          disabled={startIndex === 0}
+          className="w-8 h-8 rounded"
+          bgColor="bg-gray-200"
+          hoverBgColor="hover:bg-gray-300"
+          textColor="text-gray-800"
+          darkBgColor="dark:bg-gray-700"
+          darkHoverBgColor="dark:hover:bg-gray-600"
+          darkTextColor="dark:text-gray-300"
+        >
+          &lt;
+        </Button>
+      )}
+
+      {/* Page Numbers */}
+      <div className="flex items-center gap-2 overflow-x-auto max-w-[180px] sm:max-w-none">
+        {getVisiblePages().map((pageNumber) => {
+          const isActive = pageNumber === page;
+          return (
+            <Button
+              key={pageNumber}
+              onClick={() => onPageChange(pageNumber)}
+              disabled={loading}
+              className="w-10 h-10 flex items-center justify-center rounded border text-sm sm:text-base"
+              // Use your Button defaults for active, otherwise inactive colors
+              bgColor={isActive ? "bg-[#004080]" : "bg-white"}
+              hoverBgColor={
+                isActive ? "hover:bg-gray-700" : "hover:bg-gray-200"
+              }
+              textColor={isActive ? "text-yellow-400" : "text-gray-800"}
+              darkBgColor={isActive ? "dark:bg-gray-700" : "dark:bg-gray-800"}
+              darkHoverBgColor={
+                isActive ? "dark:hover:bg-[#004080]" : "dark:hover:bg-gray-600"
+              }
+              darkTextColor={
+                isActive
+                  ? "dark:text-yellow-400 dark:bg-[#004080] "
+                  : "dark:text-gray-300 "
+              }
             >
-              <circle
-                className="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                strokeWidth="4"
-              />
-              <path
-                className="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              />
-            </svg>
-            Loading...
-          </span>
-        ) : (
-          "Prev"
-        )}
-      </button>
+              {pageNumber}
+            </Button>
+          );
+        })}
+      </div>
 
-      <span
-        className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap text-center text-sm sm:text-base"
-        aria-live="polite"
-      >
-        Page {page} of {totalPages}
-      </span>
+      {/* Scroll Right Button */}
+      {totalPages > maxVisiblePages && (
+        <Button
+          onClick={handleScrollRight}
+          disabled={startIndex + maxVisiblePages >= totalPages}
+          className="w-8 h-8 rounded"
+          bgColor="bg-gray-200"
+          hoverBgColor="hover:bg-gray-300"
+          textColor="text-gray-800"
+          darkBgColor="dark:bg-gray-700"
+          darkHoverBgColor="dark:hover:bg-gray-600"
+          darkTextColor="dark:text-gray-300"
+        >
+          &gt;
+        </Button>
+      )}
 
-      <button
+      {/* Next Button */}
+      <Button
         aria-label="Next page"
         disabled={page === totalPages || totalPages === 0 || loading}
         onClick={() => onPageChange(page + 1)}
-        className={`px-3 py-1.5 rounded transition-colors duration-200
-      ${
-        page === totalPages || totalPages === 0 || loading
-          ? "bg-gray-400 cursor-not-allowed text-gray-700"
-          : "bg-blue-600 hover:bg-blue-700 text-white focus:outline-none focus:ring-2 focus:ring-blue-400"
-      }
-      sm:px-4 sm:py-2 sm:w-auto w-24
-    `}
+        className="px-3 py-1.5 rounded sm:px-4 sm:py-2 sm:w-auto w-24 text-sm sm:text-base"
+        bgColor={
+          page === totalPages || totalPages === 0 || loading
+            ? "bg-gray-400"
+            : "bg-[#004080]"
+        }
+        hoverBgColor={
+          page === totalPages || totalPages === 0 || loading
+            ? ""
+            : "hover:bg-gray-700"
+        }
+        textColor={
+          page === totalPages || totalPages === 0 || loading
+            ? "text-gray-700"
+            : "text-yellow-400"
+        }
+        darkBgColor={
+          page === totalPages || totalPages === 0 || loading
+            ? ""
+            : "dark:bg-gray-700"
+        }
+        darkHoverBgColor={
+          page === totalPages || totalPages === 0 || loading
+            ? ""
+            : "dark:hover:bg-[#004080]"
+        }
+        darkTextColor={
+          page === totalPages || totalPages === 0 || loading
+            ? ""
+            : "dark:text-yellow-400"
+        }
       >
-        {loading && page !== totalPages ? <LoadingPage /> : "Next"}
-      </button>
+        Next
+      </Button>
     </nav>
   );
 };
