@@ -37,7 +37,7 @@ const CouponDetails = () => {
   if (!coupon) return <NoDataFound />;
 
   return (
-    <div className="max-w-full  p-1 bg-white dark:bg-gray-900 rounded-lg shadow-md  border border-gray-200 dark:border-gray-700">
+    <div className="max-w-full  p-2 bg-white dark:bg-gray-900 rounded-lg shadow-md  border border-gray-200 dark:border-gray-700">
       <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white">
         Coupon Details
       </h2>

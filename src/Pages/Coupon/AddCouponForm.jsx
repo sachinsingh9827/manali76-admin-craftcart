@@ -6,6 +6,9 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Button from "../../components/Reusable/Button";
+import CouponDetails from "./CouponDetails";
+import LoadingPage from "../../components/Navbar/LoadingPage";
+import ConfirmationModal from "../../components/Reusable/ConfirmationModal";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -15,6 +18,7 @@ const AddCouponPage = () => {
 
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [showConfirmModal, setShowConfirmModal] = useState(false);
   const [initialValues, setInitialValues] = useState({
     couponName: "",
     couponCode: "",
@@ -85,13 +89,12 @@ const AddCouponPage = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       const payload = {
-        name: values.couponName.trim(),
-        code: values.couponCode.trim().toUpperCase(),
-        discountPercentage: Number(values.discount),
-        maxDiscount: Number(values.maxAllowed),
-        product: values.productId,
+        couponName: values.couponName.trim(),
+        couponCode: values.couponCode.trim().toUpperCase(),
+        discount: Number(values.discount),
+        maxAllowed: Number(values.maxAllowed),
+        productId: values.productId,
         expiryDate: values.expiryDate,
-        description: values.description,
       };
 
       const res = id
@@ -116,169 +119,199 @@ const AddCouponPage = () => {
     }
   };
 
+  const handleDeleteCoupon = async () => {
+    try {
+      const res = await axios.delete(`${BASE_URL}/api/coupons/${id}`);
+      if (res.data.success) {
+        toast.success("Coupon deleted successfully!");
+        setShowConfirmModal(false);
+        setTimeout(() => {
+          navigate("/admin/coupon");
+        }, 1500);
+      } else {
+        toast.error("Failed to delete coupon");
+      }
+    } catch (error) {
+      toast.error("Error deleting coupon");
+    }
+  };
+
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow-md mt-6">
-        <p className="text-gray-700 dark:text-gray-300">Loading...</p>
+        <p className="text-gray-700 dark:text-gray-300">
+          <LoadingPage />
+        </p>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-900 rounded shadow-md mt-6 font-montserrat">
+    <div className="font-montserrat w-full max-w-full mx-auto p-1">
       <ToastContainer />
-      <h2 className="text-xl font-bold mb-6 dark:text-white">
+      <h2 className="text-lg font-semibold mb-4 text-start dark:text-gray-200">
         {id ? "Update Coupon" : "Add New Coupon"}
       </h2>
 
-      <Formik
-        initialValues={initialValues}
-        enableReinitialize
-        validationSchema={validationSchema}
-        onSubmit={handleSubmit}
-      >
-        {({ isSubmitting }) => (
-          <Form className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Coupon Name */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Coupon Name<span className="text-red-500">*</span>
-              </label>
-              <Field
-                name="couponName"
-                type="text"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              />
-              <ErrorMessage
-                name="couponName"
-                component="div"
-                className="text-red-500 text-sm"
-              />
-            </div>
+      <div className="flex flex-col lg:flex-row gap-4">
+        {/* Form Section */}
+        <div className="w-full lg:w-1/2">
+          <div className="p-4 bg-white dark:bg-gray-900 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+            <Formik
+              initialValues={initialValues}
+              enableReinitialize
+              validationSchema={validationSchema}
+              onSubmit={handleSubmit}
+            >
+              {({ isSubmitting }) => (
+                <Form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Coupon Name<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="couponName"
+                      type="text"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                    />
+                    <ErrorMessage
+                      name="couponName"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
-            {/* Coupon Code */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Coupon Code<span className="text-red-500">*</span>
-              </label>
-              <Field
-                name="couponCode"
-                type="text"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              />
-              <ErrorMessage
-                name="couponCode"
-                component="div"
-                className="text-red-500 text-sm"
-              />
-            </div>
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Coupon Code<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="couponCode"
+                      type="text"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                    />
+                    <ErrorMessage
+                      name="couponCode"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
-            {/* Discount */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Discount (%)<span className="text-red-500">*</span>
-              </label>
-              <Field
-                name="discount"
-                type="number"
-                min="1"
-                max="100"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              />
-              <ErrorMessage
-                name="discount"
-                component="div"
-                className="text-red-500 text-sm"
-              />
-            </div>
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Discount (%)<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="discount"
+                      type="number"
+                      min="1"
+                      max="100"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                    />
+                    <ErrorMessage
+                      name="discount"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
-            {/* Max Allowed */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Max Allowed (₹)<span className="text-red-500">*</span>
-              </label>
-              <Field
-                name="maxAllowed"
-                type="number"
-                min="0"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              />
-              <ErrorMessage
-                name="maxAllowed"
-                component="div"
-                className="text-red-500 text-sm"
-              />
-            </div>
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Max Allowed (₹)<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="maxAllowed"
+                      type="number"
+                      min="0"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                    />
+                    <ErrorMessage
+                      name="maxAllowed"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
-            {/* Product Select */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Select Product<span className="text-red-500">*</span>
-              </label>
-              <Field
-                as="select"
-                name="productId"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              >
-                <option value="">-- Select Product --</option>
-                {products.map((p) => (
-                  <option key={p._id} value={p._id}>
-                    {p.productId}
-                  </option>
-                ))}
-              </Field>
-              <ErrorMessage
-                name="productId"
-                component="div"
-                className="text-red-500 text-sm"
-              />
-            </div>
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Select Product<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      as="select"
+                      name="productId"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                    >
+                      <option value="">-- Select Product --</option>
+                      {products.map((p) => (
+                        <option key={p._id} value={p._id}>
+                          {p.productId}
+                        </option>
+                      ))}
+                    </Field>
+                    <ErrorMessage
+                      name="productId"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
-            {/* Expiry Date */}
-            <div>
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Expiry Date<span className="text-red-500">*</span>
-              </label>
-              <Field
-                name="expiryDate"
-                type="date"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              />
-              <ErrorMessage
-                name="expiryDate"
-                component="div"
-                className="text-red-500 text-sm"
-              />
-            </div>
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Expiry Date<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="expiryDate"
+                      type="date"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                    />
+                    <ErrorMessage
+                      name="expiryDate"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
 
-            {/* Description */}
-            <div className="md:col-span-2">
-              <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                Description (optional)
-              </label>
-              <Field
-                as="textarea"
-                name="description"
-                rows="3"
-                className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-              />
-            </div>
+                  <div className="md:col-span-2 flex justify-between">
+                    {id && (
+                      <Button
+                        type="button"
+                        className="bg-red-600 hover:bg-red-700"
+                        onClick={() => setShowConfirmModal(true)}
+                      >
+                        Delete Coupon
+                      </Button>
+                    )}
+                    <Button type="submit" disabled={isSubmitting}>
+                      {isSubmitting
+                        ? id
+                          ? "Updating..."
+                          : "Adding..."
+                        : id
+                        ? "Update Coupon"
+                        : "Add Coupon"}
+                    </Button>
+                  </div>
+                </Form>
+              )}
+            </Formik>
+          </div>
+        </div>
 
-            {/* Submit */}
-            <div className="md:col-span-2 flex justify-end">
-              <Button type="submit" disabled={isSubmitting}>
-                {isSubmitting
-                  ? id
-                    ? "Updating..."
-                    : "Adding..."
-                  : id
-                  ? "Update Coupon"
-                  : "Add Coupon"}
-              </Button>
-            </div>
-          </Form>
+        {id && (
+          <div className="w-full lg:w-1/2">
+            <CouponDetails couponId={id} />
+          </div>
         )}
-      </Formik>
+      </div>
+
+      {/* Delete Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={showConfirmModal}
+        title="Confirm Delete"
+        message="Are you sure you want to delete this coupon?"
+        onCancel={() => setShowConfirmModal(false)}
+        onConfirm={handleDeleteCoupon}
+      />
     </div>
   );
 };
