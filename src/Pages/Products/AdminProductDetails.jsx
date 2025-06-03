@@ -4,7 +4,9 @@ import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import NoDataFound from "../../components/Reusable/NoDataFound";
+
 const BASE_URL = "https://craft-cart-backend.vercel.app";
+
 const AdminProductDetails = () => {
   const { id } = useParams();
   const [product, setProduct] = useState(null);
@@ -40,102 +42,118 @@ const AdminProductDetails = () => {
   };
 
   useEffect(() => {
-    // 👇 Scroll to top on page load
     window.scrollTo(0, 0);
     fetchProduct();
   }, [id]);
 
   if (loading) return <LoadingPage />;
-  if (!product)
-    return (
-      <p>
-        <NoDataFound />
-      </p>
-    );
+  if (!product) return <NoDataFound />;
 
   return (
-    <div className="max-w-full mx-auto p-2 dark:bg-gray-800 relative">
-      <h2 className="text-xl font-bold mb-4 text-center">Product Details</h2>
+    <div className="max-w-4xl mx-auto p-4 dark:bg-gray-900 bg-white rounded-lg shadow-md">
+      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
+        Product Details
+      </h2>
 
-      {/* Images */}
-      {/* Images */}
-      <div className="flex gap-2 mb-4 flex-wrap">
-        {product.images.map((imgObj, i) => (
+      <div className="flex flex-col md:flex-row gap-6">
+        {/* Main Image */}
+        <div className="w-full md:w-1/2">
           <img
-            key={i}
-            src={imgObj.url} // Direct URL from backend
-            alt={`Product ${i}`}
-            onClick={() => setSelectedImage(imgObj.url)}
-            className="w-20 h-20 object-cover border border-gray-300 rounded-md cursor-pointer hover:scale-105 transition"
+            src={selectedImage || product.images[0]?.url}
+            alt="Main"
+            className="rounded-lg border object-cover w-full h-64 md:h-80"
           />
-        ))}
+        </div>
+
+        {/* Product Info */}
+        <div className="w-full md:w-1/2 space-y-3 text-sm text-gray-700 dark:text-gray-200">
+          <p>
+            <strong>Product ID:</strong> {product.productId}
+          </p>
+          <p>
+            <strong>Name:</strong> {product.name}
+          </p>
+          <p>
+            <strong>Price:</strong> ₹{product.price}
+          </p>
+          <p>
+            <strong>Description:</strong> {product.description}
+          </p>
+          <p>
+            <strong>Category:</strong> {product.category}
+          </p>
+          <p>
+            <strong>Brand:</strong> {product.brand}
+          </p>
+          <p>
+            <strong>Stock:</strong> {product.stock}
+          </p>
+          <p>
+            <strong>Created At:</strong>{" "}
+            {new Date(product.createdAt).toLocaleString()}
+          </p>
+          <p>
+            <strong>Created By:</strong> {product.createdBy?.name}
+          </p>
+
+          {/* Availability Toggle */}
+          <div className="flex items-center justify-between mt-4">
+            <span className="font-medium">
+              Status:{" "}
+              <span
+                className={
+                  product.isAvailable ? "text-green-600" : "text-red-600"
+                }
+              >
+                {product.isAvailable ? "Available" : "Not Available"}
+              </span>
+            </span>
+
+            <Button onClick={toggleAvailability} disabled={updating}>
+              {updating
+                ? "Updating..."
+                : product.isAvailable
+                ? "Mark as Not Available"
+                : "Mark as Available"}
+            </Button>
+          </div>
+        </div>
       </div>
 
-      {/* Product Info */}
-      <div className="space-y-2 text-sm text-gray-700 dark:text-gray-200">
-        <p>
-          <strong>Product ID:</strong> {product.productId}
-        </p>
-        <p>
-          <strong>Name:</strong> {product.name}
-        </p>
-        <p>
-          <strong>Price:</strong> ₹{product.price}
-        </p>
-        <p>
-          <strong>Description:</strong> {product.description}
-        </p>
-        <p>
-          <strong>Category:</strong> {product.category}
-        </p>
-        <p>
-          <strong>Brand:</strong> {product.brand}
-        </p>
-        <p>
-          <strong>Stock:</strong> {product.stock}
-        </p>
-        <p>
-          <strong>Created At:</strong>{" "}
-          {new Date(product.createdAt).toLocaleString()}
-        </p>
+      {/* Image Gallery */}
+      <div className="mt-6">
+        <h3 className="text-md font-semibold mb-2 text-gray-700 dark:text-gray-300">
+          Image Gallery
+        </h3>
+        <div className="flex gap-3 flex-wrap">
+          {product.images.map((img, i) => (
+            <img
+              key={i}
+              src={img.url}
+              alt={`Product ${i}`}
+              onClick={() => setSelectedImage(img.url)}
+              className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition"
+            />
+          ))}
+        </div>
       </div>
 
-      {/* Toggle Availability */}
-      <div className="mt-6 flex items-center justify-between">
-        <span className="font-medium">
-          Status:{" "}
-          <span
-            className={product.isAvailable ? "text-green-600" : "text-red-600"}
-          >
-            {product.isAvailable ? "Available" : "Not Available"}
-          </span>
-        </span>
-
-        <Button onClick={toggleAvailability} disabled={updating}>
-          {updating
-            ? "Updating..."
-            : product.isAvailable
-            ? "Mark as Not Available"
-            : "Mark as Available"}
-        </Button>
-      </div>
-
-      {/* Modal Image Preview */}
+      {/* Modal Preview */}
       {selectedImage && (
         <div
           className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative max-w-full max-h-full p-4">
+          <div className="relative p-4 max-w-full max-h-full">
             <img
               src={selectedImage}
-              alt="Full Size"
+              alt="Preview"
               className="max-w-full max-h-screen rounded shadow-lg"
               onClick={(e) => e.stopPropagation()}
             />
             <button
               onClick={() => setSelectedImage(null)}
-              className="absolute top-2 right-2 text-white text-xl font-bold bg-black bg-opacity-50 px-2 py-1 rounded"
+              className="absolute top-2 right-2 text-white text-xl font-bold bg-black bg-opacity-60 px-3 py-1 rounded"
             >
               ✕
             </button>
