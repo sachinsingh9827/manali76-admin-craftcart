@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../components/Reusable/Button";
-import ReusableTable from "../../components/Reusable/ReusableTable"; // Adjust import path
+import ReusableTable from "../../components/Reusable/ReusableTable";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import NoDataFound from "../../components/Reusable/NoDataFound";
 
@@ -17,7 +17,7 @@ const EditUser = () => {
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(true);
   const [messages, setMessages] = useState([]);
-
+  const [role, setRole] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [updating, setUpdating] = useState(false);
@@ -34,6 +34,7 @@ const EditUser = () => {
 
         setUser(user);
         setName(user.name || "");
+        setRole(user.role || "");
         setEmail(user.email || "");
         setIsActive(user.isActive ?? true);
         setMessages(messages || []);
@@ -47,31 +48,8 @@ const EditUser = () => {
     fetchUser();
   }, [id]);
 
-  if (loading) {
-    return (
-      <p className="text-center text-gray-700 dark:text-gray-300 mt-8">
-        <LoadingPage />
-      </p>
-    );
-  }
-
-  if (error) {
-    return (
-      <p className="text-center text-red-600 dark:text-red-400 mt-8">{error}</p>
-    );
-  }
-
-  if (!user) {
-    return (
-      <p className="text-center text-gray-900 dark:text-white mt-8">
-        <NoDataFound />
-      </p>
-    );
-  }
-
   const handleSubmit = async (e) => {
     e.preventDefault();
-
     try {
       await axios.put(`${BASE_URL}/api/users/${id}`, {
         name,
@@ -99,7 +77,6 @@ const EditUser = () => {
     }
   };
 
-  // Columns for messages table
   const messageColumns = [
     { header: "Message", accessor: "message" },
     {
@@ -109,30 +86,10 @@ const EditUser = () => {
     },
   ];
 
-  // Columns for the action buttons table
-  const actionColumns = [
-    { header: "Action", accessor: "label" },
-    {
-      header: "Button",
-      accessor: "button",
-      render: (row) => row.button,
-    },
-  ];
-
-  // Data for the action buttons table
   const actionData = [
     {
-      id: 1,
-      label: "Save Changes",
-      button: (
-        <Button type="submit" className="w-full">
-          Save Changes
-        </Button>
-      ),
-    },
-    {
       id: 2,
-      label: isActive ? "Mark as Not Available" : "Mark as Available",
+      label: isActive ? "Deactivate User" : "Activate User",
       button: (
         <Button
           onClick={toggleAvailability}
@@ -142,22 +99,34 @@ const EditUser = () => {
           {updating
             ? "Updating..."
             : isActive
-            ? "Mark as Not Available"
-            : "Mark as Available"}
+            ? "Deactivate User"
+            : "Activate User"}
         </Button>
       ),
     },
   ];
 
+  if (loading) return <LoadingPage />;
+  if (error)
+    return (
+      <p className="text-center text-red-600 dark:text-red-400 mt-8">{error}</p>
+    );
+  if (!user) return <NoDataFound />;
+
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-2 sm:p-6">
-      <h2 className="text-2xl font-semibold mb-4 text-gray-900 dark:text-white text-start sm:text-left">
-        All User details
-      </h2>
+    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-2 sm:p-4">
+      <div className="w-full flex justify-between items-start flex-wrap gap-2 mb-4">
+        <h2 className="text-sm sm:text-sm md:text-sm uppercase font-semibold text-gray-900 dark:text-white">
+          User Details
+        </h2>
+        <h2 className="text-sm sm:text-lg md:text-sm uppercase font-semibold text-gray-900 dark:text-white">
+          Role: <span className="">{user.role || "N/A"}</span>
+        </h2>
+      </div>
 
       <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 max-w-full mx-auto">
         {/* Form Section */}
-        <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded shadow max-w-full">
+        <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded shadow">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
               <label className="block font-medium text-gray-900 dark:text-gray-200 mb-1">
@@ -171,7 +140,6 @@ const EditUser = () => {
                 required
               />
             </div>
-
             <div>
               <label className="block font-medium text-gray-900 dark:text-gray-200 mb-1">
                 Email
@@ -184,16 +152,21 @@ const EditUser = () => {
                 required
               />
             </div>
-
-            {/* Action Buttons inside reusable table */}
-            <div className="overflow-x-auto">
-              <ReusableTable columns={actionColumns} data={actionData} />
+            <div className="mt-4">
+              {actionData.map((action) => (
+                <div key={action.id} className="mb-3">
+                  <label className="block mb-1 text-gray-700 dark:text-gray-300">
+                    {action.label}
+                  </label>
+                  {action.button}
+                </div>
+              ))}
             </div>
           </form>
         </div>
 
         {/* Messages Section */}
-        <div className="flex-1 bg-white dark:bg-gray-800 p-6 rounded shadow max-h-[400px] overflow-y-auto max-w-full">
+        <div className="flex-1 bg-white dark:bg-gray-800 p-6 rounded shadow max-h-[400px] overflow-y-auto">
           <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
             User Messages
           </h3>
@@ -217,6 +190,10 @@ const EditUser = () => {
         </p>
         <p className="text-gray-700 dark:text-gray-300">
           Country: <span className="font-medium">{user.country || "N/A"}</span>
+        </p>
+        <p className="text-gray-700 dark:text-gray-300">
+          Role:{" "}
+          <span className="font-medium capitalize">{user.role || "N/A"}</span>
         </p>
       </div>
     </div>

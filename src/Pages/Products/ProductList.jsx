@@ -64,13 +64,13 @@ const ProductList = () => {
   ];
 
   return (
-    <div className=" bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <h2 className="text-sm  font-semibold mb-4 sm:mb-2 text-gray-900 dark:text-gray-100 text-start sm:text-left">
+    <div className=" bg-gray-50 dark:bg-gray-900 ">
+      <h2 className="text-sm  font-semibold mb-2  text-gray-900 dark:text-gray-100 text-start sm:text-left">
         Product List
       </h2>
 
       {/* Search and Add Product */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
+      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <input
           type="text"
           placeholder="Search by name or P.I. number..."

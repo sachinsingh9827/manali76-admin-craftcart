@@ -9,6 +9,7 @@ import Button from "../../components/Reusable/Button";
 import CouponDetails from "./CouponDetails";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import ConfirmationModal from "../../components/Reusable/ConfirmationModal";
+import { showToast } from "../../components/Toast/Toast";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -40,7 +41,7 @@ const AddCouponPage = () => {
         if (productRes.data.success) {
           setProducts(productRes.data.data);
         } else {
-          toast.error("Failed to load products");
+          showToast("Failed to load products", "error");
         }
 
         if (id && couponRes?.data?.success) {
@@ -56,7 +57,7 @@ const AddCouponPage = () => {
           });
         }
       } catch (error) {
-        toast.error("Error loading data");
+        showToast("Error loading data", "error");
       } finally {
         setLoading(false);
       }
@@ -102,16 +103,16 @@ const AddCouponPage = () => {
         : await axios.post(`${BASE_URL}/api/coupons`, payload);
 
       if (res.data.success) {
-        toast.success(id ? "Coupon updated!" : "Coupon added!");
+        showToast(id ? "Coupon updated!" : "Coupon added!", "success");
         setTimeout(() => {
           resetForm();
           navigate("/admin/coupon");
         }, 1500);
       } else {
-        toast.error(res.data.message || "Failed to save coupon");
+        showToast(res.data.message || "Failed to save coupon", "error");
       }
     } catch (error) {
-      toast.error(
+      showToast.error(
         error.response?.data?.message || "Error submitting coupon form"
       );
     } finally {
@@ -123,16 +124,16 @@ const AddCouponPage = () => {
     try {
       const res = await axios.delete(`${BASE_URL}/api/coupons/${id}`);
       if (res.data.success) {
-        toast.success("Coupon deleted successfully!");
+        showToast("Coupon deleted successfully!", "success");
         setShowConfirmModal(false);
         setTimeout(() => {
           navigate("/admin/coupon");
         }, 1500);
       } else {
-        toast.error("Failed to delete coupon");
+        showToast.error("Failed to delete coupon", "error");
       }
     } catch (error) {
-      toast.error("Error deleting coupon");
+      showToast("Error deleting coupon", "error");
     }
   };
 
@@ -149,7 +150,7 @@ const AddCouponPage = () => {
   return (
     <div className="font-montserrat w-full max-w-full mx-auto p-1">
       <ToastContainer />
-      <h2 className="text-lg font-semibold mb-4 text-start dark:text-gray-200">
+      <h2 className="text-sm uppercase font-semibold mb-4 text-start dark:text-gray-200">
         {id ? "Update Coupon" : "Add New Coupon"}
       </h2>
 
