@@ -26,7 +26,7 @@ const Products = () => {
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white font-montserrat">
-      <AdminPageNavbar title="Products" />
+      <AdminPageNavbar title="Products!" />
 
       {/* Responsive Nav Tabs */}
       <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:space-x-2 border-b border-gray-300 dark:border-yellow-400 px-4 pt-4">

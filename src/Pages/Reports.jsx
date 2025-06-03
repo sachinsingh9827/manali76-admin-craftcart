@@ -29,7 +29,7 @@ const Reports = () => {
   return (
     <div className="font-montserrat min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
       {/* Cards */}
-      <AdminPageNavbar title="Reports" />
+      <AdminPageNavbar title="Reports!" />
       <div className="p-6 grid grid-cols-1 md:grid-cols-3 gap-6">
         {cards.map((card) => (
           <div

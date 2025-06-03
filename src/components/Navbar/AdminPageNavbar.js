@@ -1,7 +1,7 @@
 import React from "react";
 import ThemeToggleButton from "./ThemeToggle"; // adjust path if needed
 
-const AdminPageNavbar = ({ title = "Admin" }) => {
+const AdminPageNavbar = ({ title = "dashboard!" }) => {
   return (
     <nav
       className="flex justify-between items-center px-2 py-3  
