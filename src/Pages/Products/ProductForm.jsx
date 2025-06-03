@@ -6,6 +6,7 @@ import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import AdminProductDetails from "./AdminProductDetails";
 import LoadingPage from "../../components/Navbar/LoadingPage";
+import { showToast } from "../../components/Toast/Toast";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -53,6 +54,7 @@ const ProductForm = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
   const [productActive, setProductActive] = useState(true);
+  const [showTooltip, setShowTooltip] = useState(false);
   const [initialValues, setInitialValues] = useState({
     name: "",
     price: "",
@@ -154,7 +156,7 @@ const ProductForm = () => {
     if (user && user._id) {
       values.createdBy = user._id; // Set createdBy to the user's ID
     } else {
-      alert("User  not logged in");
+      showToast("User  not logged in", "info");
       setSubmitting(false);
       return;
     }
@@ -183,15 +185,15 @@ const ProductForm = () => {
       });
 
       if (res.data.success) {
-        alert(isUpdate ? "Product updated!" : "Product added!");
+        showToast(isUpdate ? "Product updated!" : "Product added!", "success");
         clearNewImagePreviews();
         resetForm();
         navigate("/admin/products");
       } else {
-        alert("Error: " + res.data.message);
+        showToast("Error: " + res.data.message);
       }
     } catch (err) {
-      alert("Network error.");
+      showToast("Network error.");
       console.error(err);
     }
     setSubmitting(false);
@@ -207,10 +209,10 @@ const ProductForm = () => {
         method: "delete",
         url: `${BASE_URL}/api/admin/protect/${id}`,
       });
-      alert("Product deleted!");
+      showToast("Product deleted!", "success");
       navigate("/admin/products");
     } catch (err) {
-      alert("Delete failed: " + (err.message || "Network error."));
+      showToast("Delete failed: " + (err.message || "Network error."), "error");
       console.error(err);
     } finally {
       setLoading(false);
@@ -227,9 +229,14 @@ const ProductForm = () => {
         data: { active: !productActive },
       });
       setProductActive(!productActive);
-      alert(`Product is now ${!productActive ? "Active" : "Inactive"}`);
+      showToast(
+        `Product is now ${!productActive ? "Active" : "Inactive"}`,
+        "success"
+      );
     } catch (err) {
-      alert("Status change failed: " + (err.message || "Network error."));
+      showToast(
+        "Status change failed: " + (err.message || "Network error.", "error")
+      );
       console.error(err);
     } finally {
       setLoading(false);
@@ -479,21 +486,36 @@ const ProductForm = () => {
                       Created By
                     </label>
                     <Field name="createdBy">
-                      {({ field, form }) => (
-                        <input
-                          id="createdBy"
-                          type="text"
-                          placeholder="Created By"
-                          className="w-full p-1 border border-gray-300 rounded-md
-                   text-gray-900 dark:text-gray-100
-                   bg-white dark:bg-gray-700
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
-                          value={form.values.createdBy || ""}
-                          disabled
-                          readOnly
-                        />
-                      )}
+                      {({ form }) => {
+                        const name = form.values.createdBy?.name || "";
+
+                        return (
+                          <div className="relative w-full">
+                            <input
+                              id="createdBy"
+                              type="text"
+                              placeholder="Created By"
+                              className="w-full p-1 border border-gray-300 rounded-md
+            text-gray-900 dark:text-gray-100
+            bg-white dark:bg-gray-700
+            focus:outline-none focus:ring-2 focus:ring-blue-500"
+                              value={name}
+                              readOnly
+                              onMouseEnter={() => setShowTooltip(true)}
+                              onMouseLeave={() => setShowTooltip(false)}
+                              onClick={() => setShowTooltip(true)}
+                            />
+
+                            {showTooltip && (
+                              <div className="absolute top-full mt-1 left-0 bg-yellow-100 text-yellow-800 px-2 py-1 text-xs rounded shadow-md z-10">
+                                ⚠️ This field is not editable.
+                              </div>
+                            )}
+                          </div>
+                        );
+                      }}
                     </Field>
+
                     <ErrorMessage
                       name="createdBy"
                       component="div"
@@ -504,11 +526,7 @@ const ProductForm = () => {
 
                 {/* Submit Button */}
                 <div className="flex items-center gap-4">
-                  <Button
-                    type="submit"
-                    disabled={isSubmitting}
-                    className="bg-blue-600 hover:bg-blue-700 px-6 py-2"
-                  >
+                  <Button type="submit" disabled={isSubmitting}>
                     {id ? "Update" : "Add Product"}
                   </Button>
 
@@ -529,11 +547,7 @@ const ProductForm = () => {
 
                   {/* Delete Button, only for update */}
                   {id && (
-                    <Button
-                      onClick={openDeleteModal}
-                      className="bg-red-600 hover:bg-red-700 px-6 py-2"
-                      type="button"
-                    >
+                    <Button onClick={openDeleteModal} type="button">
                       Delete
                     </Button>
                   )}

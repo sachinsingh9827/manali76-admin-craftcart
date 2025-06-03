@@ -4,6 +4,7 @@ import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import NoDataFound from "../../components/Reusable/NoDataFound";
+import { showToast } from "../../components/Toast/Toast";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -34,8 +35,17 @@ const AdminProductDetails = () => {
         isAvailable: updatedStatus,
       });
       setProduct((prev) => ({ ...prev, isAvailable: updatedStatus }));
+
+      showToast(
+        `Product is now ${updatedStatus ? "Available" : "Not Available"}`,
+        "success"
+      );
     } catch (err) {
       console.error("❌ Failed to update status:", err);
+      showToast(
+        "Status change failed: " + (err.message || "Network error."),
+        "error"
+      );
     } finally {
       setUpdating(false);
     }
@@ -50,23 +60,19 @@ const AdminProductDetails = () => {
   if (!product) return <NoDataFound />;
 
   return (
-    <div className="max-w-4xl mx-auto p-4 dark:bg-gray-900 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-gray-800 dark:text-white">
-        Product Details
-      </h2>
-
-      <div className="flex flex-col md:flex-row gap-6">
+    <div className="max-w-full mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md ">
+      <div className="w-full flex flex-col md:flex-row bg-white dark:bg-gray-800 shadow-md rounded-md p-1 gap-2 border border-gray-200 dark:border-gray-700">
         {/* Main Image */}
-        <div className="w-full md:w-1/2">
+        <div className="w-full md:w-1/2 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
           <img
             src={selectedImage || product.images[0]?.url}
             alt="Main"
-            className="rounded-lg border object-cover w-full h-64 md:h-80"
+            className="w-full h-64 md:h-80 object-cover"
           />
         </div>
 
         {/* Product Info */}
-        <div className="w-full md:w-1/2 space-y-3 text-sm text-gray-700 dark:text-gray-200">
+        <div className="w-full md:w-1/2 mt-4 md:mt-0 text-gray-700 dark:text-gray-200 text-sm space-y-2">
           <p>
             <strong>Product ID:</strong> {product.productId}
           </p>
@@ -108,7 +114,6 @@ const AdminProductDetails = () => {
                 {product.isAvailable ? "Available" : "Not Available"}
               </span>
             </span>
-
             <Button onClick={toggleAvailability} disabled={updating}>
               {updating
                 ? "Updating..."
@@ -125,14 +130,14 @@ const AdminProductDetails = () => {
         <h3 className="text-md font-semibold mb-2 text-gray-700 dark:text-gray-300">
           Image Gallery
         </h3>
-        <div className="flex gap-3 flex-wrap">
+        <div className="flex flex-wrap gap-3">
           {product.images.map((img, i) => (
             <img
               key={i}
               src={img.url}
               alt={`Product ${i}`}
               onClick={() => setSelectedImage(img.url)}
-              className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition"
+              className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition-transform"
             />
           ))}
         </div>
@@ -141,10 +146,10 @@ const AdminProductDetails = () => {
       {/* Modal Preview */}
       {selectedImage && (
         <div
-          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50"
+          className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 p-4"
           onClick={() => setSelectedImage(null)}
         >
-          <div className="relative p-4 max-w-full max-h-full">
+          <div className="relative max-w-full max-h-full">
             <img
               src={selectedImage}
               alt="Preview"
@@ -154,6 +159,7 @@ const AdminProductDetails = () => {
             <button
               onClick={() => setSelectedImage(null)}
               className="absolute top-2 right-2 text-white text-xl font-bold bg-black bg-opacity-60 px-3 py-1 rounded"
+              aria-label="Close image preview"
             >
               ✕
             </button>

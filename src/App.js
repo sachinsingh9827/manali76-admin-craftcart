@@ -32,10 +32,13 @@ import ContactInfoForm from "./Pages/Contact/ContactInfoForm";
 import Settings from "./Pages/Settings";
 import Reports from "./Pages/Reports";
 
-// Utilities
-import Toast from "./components/Toast/Toast";
 import ScrollToTop from "./components/Reusable/ScrollToTop";
 import NotFound from "./utils/NotFound";
+import Toast from "./components/Toast/Toast";
+import CouponList from "./Pages/Coupon/CouponList";
+
+import Coupon from "./Pages/Coupon/Coupon";
+import AddCouponPage from "./Pages/Coupon/AddCouponForm";
 
 function App() {
   useThemeEffect();
@@ -93,6 +96,11 @@ function App() {
             <Route index element={<ContactList />} />
             <Route path="edit/:id?" element={<ContactInfoForm />} />
           </Route>
+          <Route path="coupon" element={<Coupon />}>
+            <Route index element={<CouponList />} />
+            <Route path="edit/:id?" element={<AddCouponPage />} />
+          </Route>
+
           <Route path="settings" element={<Settings />} />
           <Route path="reports" element={<Reports />} />
         </Route>
