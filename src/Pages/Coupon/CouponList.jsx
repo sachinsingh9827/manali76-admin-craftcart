@@ -104,18 +104,30 @@ const CouponList = () => {
             {
               header: "SN.",
               accessor: "sn",
-              render: (_, index) => index + 1 + (page - 1) * PAGE_SIZE, // Serial number across pages
+              render: (_, index) => index + 1 + (page - 1) * PAGE_SIZE,
             },
             { header: "Code", accessor: "code" },
-            { header: "Description", accessor: "description" },
-            { header: "Discount (%)", accessor: "discount" },
+            { header: "Name", accessor: "name" },
+            {
+              header: "Discount (%)",
+              accessor: "discountPercentage",
+              render: (row) => `${row.discountPercentage}%`,
+            },
+            {
+              header: "Expiry Date",
+              accessor: "expiryDate",
+              render: (row) =>
+                row.expiryDate
+                  ? new Date(row.expiryDate).toLocaleDateString()
+                  : "No Expiry",
+            },
             {
               header: "Actions",
               accessor: "actions",
               render: (coupon) => (
                 <Button
                   onClick={(e) => {
-                    e.stopPropagation(); // Prevent row click
+                    e.stopPropagation();
                     navigate(`/admin/coupon/edit/${coupon._id}`);
                   }}
                   className="text-sm px-2 py-1"
