@@ -136,14 +136,11 @@ const AddCouponPage = () => {
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     try {
       const payload = {
-        name: values.couponName.trim(),
-        code: values.couponCode.trim().toUpperCase(),
-        discountPercentage: Number(values.discount),
-        maxDiscount: Number(values.maxAllowed),
+        couponName: values.couponName.trim(),
+        couponCode: values.couponCode.trim().toUpperCase(),
+        discount: Number(values.discount),
+        maxAllowed: Number(values.maxAllowed),
         productId: values.productId,
-        expiryDate: values.expiryDate || null,
-        description: values.description || "",
-        isActive: couponActive,
       };
 
       let res;
