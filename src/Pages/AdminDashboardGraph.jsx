@@ -34,7 +34,7 @@ const AdminDashboardGraph = () => {
       x={x}
       y={y + 5}
       textAnchor="middle"
-      fill={isDark ? "#ffffff" : ""}
+      fill={isDark ? "#004080" : "#f1c40f"}
       fontSize={10}
       fontWeight="bold"
     >
@@ -52,37 +52,42 @@ const AdminDashboardGraph = () => {
         <ResponsiveContainer width="100%" height="100%">
           <BarChart
             data={data}
-            margin={{ top: 10, right: 20, left: 10, bottom: 20 }}
-            barCategoryGap="30%"
+            margin={{ top: 10, right: 10, left: 1, bottom: 20 }}
+            barCategoryGap="10%"
           >
             <CartesianGrid
               strokeDasharray="2 2"
-              stroke={isDark ? "#444" : "#ccc"}
+              stroke={isDark ? "#004080" : "#"}
             />
             <XAxis
               dataKey="name"
-              stroke={isDark ? "#ffffff" : "#333"}
+              stroke={isDark ? "#004080" : "#004080"}
               tick={renderTick}
-              axisLine={{ stroke: isDark ? "#ffffff" : "#333" }}
+              axisLine={{ stroke: isDark ? "#004080" : "#004080" }}
             />
             <YAxis
               allowDecimals={false}
-              stroke={isDark ? "#ffffff" : "#333"}
+              stroke={isDark ? "#004080" : "#004080"}
               tick={renderTick}
-              axisLine={{ stroke: isDark ? "#ffffff" : "#333" }}
+              axisLine={{ stroke: isDark ? "#004080" : "#004080" }}
             />
             <Tooltip
               contentStyle={{
-                backgroundColor: isDark ? "#2d3748" : "#fff",
-                borderColor: isDark ? "#555" : "#ccc",
-                color: isDark ? "#ffffff" : "#333",
+                backgroundColor: isDark ? "#004080" : "#",
+                borderColor: "#004080",
+                color: isDark ? "#004080" : "#",
+                borderRadius: "8px", // Add your desired radius here
               }}
-              labelStyle={{ color: isDark ? "#ffffff" : "#333" }}
+              labelStyle={{
+                color: "#004080",
+              }}
             />
+
             <Bar
               dataKey="count"
-              fill={isDark ? "#63b3ed" : "#1e40af"}
-              radius={[4, 4, 0, 0]}
+              fill={isDark ? "#" : "#004080"}
+              radius={[8, 2, 0, 0]}
+              barSize={40} // width of the bar in pixels, adjust as needed
             />
           </BarChart>
         </ResponsiveContainer>

@@ -5,6 +5,7 @@ import Pagination from "../../components/Reusable/Pagination";
 import NoDataFound from "../../components/Reusable/NoDataFound";
 import Button from "../../components/Reusable/Button";
 import LoadingPage from "../../components/Navbar/LoadingPage";
+import ProductFilter from "../../components/Reusable/ProductFilter";
 
 const PAGE_SIZE = 5;
 const BASE_URL = "https://craft-cart-backend.vercel.app";
@@ -12,6 +13,7 @@ const BASE_URL = "https://craft-cart-backend.vercel.app";
 const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
+  const [sortOrder, setSortOrder] = useState("");
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
@@ -22,12 +24,9 @@ const ProductList = () => {
       setLoading(true);
       try {
         const res = await fetch(
-          `${BASE_URL}/api/admin/protect?search=${encodeURIComponent(
-            searchTerm
-          )}&page=${page}&limit=${PAGE_SIZE}`
+          `${BASE_URL}/api/admin/protect?page=${page}&limit=${PAGE_SIZE}`
         );
         const data = await res.json();
-
         if (data.success) {
           setProducts(data.data || []);
           setTotalPages(data.totalPages || 1);
@@ -44,13 +43,24 @@ const ProductList = () => {
     };
 
     fetchProducts();
-  }, [searchTerm, page]);
+  }, [page]);
 
-  const filteredProducts = products.filter(
-    (p) =>
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.productId.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredProducts = products
+    .filter((product) => {
+      const term = searchTerm.toLowerCase();
+      return (
+        product.name?.toLowerCase().includes(term) ||
+        product.productId?.toLowerCase().includes(term) ||
+        product.category?.toLowerCase().includes(term) ||
+        product.price?.toString().includes(term) ||
+        product.stock?.toString().includes(term)
+      );
+    })
+    .sort((a, b) => {
+      if (sortOrder === "lowToHigh") return a.price - b.price;
+      if (sortOrder === "highToLow") return b.price - a.price;
+      return 0;
+    });
 
   const columns = [
     { header: "P.I.", accessor: "productId" },
@@ -59,34 +69,27 @@ const ProductList = () => {
     {
       header: "Price",
       accessor: "price",
-      render: (row) => `${row.price}`,
+      render: (row) => `$${row.price}`,
     },
     { header: "Stock", accessor: "stock" },
   ];
 
   return (
-    <div className=" bg-gray-50 dark:bg-gray-900 ">
-      <h2 className="text-sm  font-semibold mb-2  text-gray-900 dark:text-gray-100 text-start sm:text-left">
+    <div className="bg-gray-50 dark:bg-gray-900 p-2 sm:p-1">
+      <h2 className="text-sm font-semibold mb-4 text-gray-900 dark:text-gray-100">
         Product List
       </h2>
 
-      {/* Search and Add Product */}
-      <div className="mb-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-        <input
-          type="text"
-          placeholder="Search by name or P.I. number..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
+      {/* Filter and Add Product */}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
+        <ProductFilter
+          searchTerm={searchTerm}
+          onSearchChange={(term) => {
+            setSearchTerm(term);
             setPage(1);
           }}
-          className="sm:p-1 border rounded w-full sm:max-w-xs
-            text-gray-900 dark:text-gray-100
-            bg-white dark:bg-gray-800
-            border-gray-300 dark:border-gray-600
-            placeholder-gray-500 dark:placeholder-gray-400
-            transition-colors duration-300
-            focus:outline-none focus:ring-2 focus:ring-blue-500"
+          sortOrder={sortOrder}
+          onSortChange={setSortOrder}
         />
         <Button onClick={() => navigate("/admin/products/new")}>
           Add Product
@@ -99,7 +102,7 @@ const ProductList = () => {
         </div>
       )}
 
-      {/* Table for medium+ screens */}
+      {/* Table View for Desktop */}
       <div className="hidden md:block border border-gray-300 dark:border-gray-600 rounded overflow-x-auto">
         {filteredProducts.length === 0 ? (
           <NoDataFound />
@@ -112,7 +115,7 @@ const ProductList = () => {
         )}
       </div>
 
-      {/* Card view for small screens */}
+      {/* Card View for Mobile */}
       <div className="md:hidden space-y-4">
         {filteredProducts.length === 0 ? (
           <div className="text-center p-4 text-gray-700 dark:text-gray-300">

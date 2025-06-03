@@ -53,7 +53,20 @@ const AdminDashboard = () => {
   return (
     <div className="font-montserrat min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white">
       <AdminPageNavbar />
-      <div className="p-6 grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      {/* Hero Section */}
+      <div className="px-6 py-8 mb-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <h1 className="text-3xl font-extrabold text-gray-900 dark:text-white mb-2">
+          Welcome to <span className="text-[#16a085]">Craft-Cart!</span>
+        </h1>
+
+        <p className="text-gray-600 dark:text-gray-300 text-lg">
+          Monitor and manage users, products, and more — all in one place.
+        </p>
+      </div>
+
+      {/* Main Content Section */}
+      <div className="px-2 pb-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
         <AdminDashboardGraph isDark={isDark} />
         {loading ? (
           <div className="flex items-center justify-center h-full">
