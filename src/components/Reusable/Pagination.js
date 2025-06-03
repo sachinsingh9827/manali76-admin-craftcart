@@ -34,7 +34,6 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
         disabled={page === 1 || loading}
         onClick={() => onPageChange(page - 1)}
         className="px-3 py-1.5 rounded sm:px-4 sm:py-2 sm:w-auto w-24 text-sm sm:text-base"
-        // You can customize these or use default:
         bgColor={page === 1 || loading ? "bg-gray-400" : "bg-[#004080]"}
         hoverBgColor={page === 1 || loading ? "" : "hover:bg-gray-700"}
         textColor={page === 1 || loading ? "text-gray-700" : "text-yellow-400"}
@@ -74,20 +73,19 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
               onClick={() => onPageChange(pageNumber)}
               disabled={loading}
               className="w-10 h-10 flex items-center justify-center rounded border text-sm sm:text-base"
-              // Use your Button defaults for active, otherwise inactive colors
               bgColor={isActive ? "bg-[#004080]" : "bg-white"}
               hoverBgColor={
                 isActive ? "hover:bg-gray-700" : "hover:bg-gray-200"
               }
               textColor={isActive ? "text-yellow-400" : "text-gray-800"}
-              darkBgColor={isActive ? "dark:bg-gray-700" : "dark:bg-gray-800"}
+              darkBgColor={isActive ? "dark:bg-[#004080]" : "dark:bg-gray-800"}
               darkHoverBgColor={
-                isActive ? "dark:hover:bg-[#004080]" : "dark:hover:bg-gray-600"
+                isActive ? "dark:hover:bg-[#003366]" : "dark:hover:bg-gray-600"
               }
               darkTextColor={
                 isActive
-                  ? "dark:text-yellow-400 dark:bg-[#004080] "
-                  : "dark:text-gray-300 "
+                  ? "dark:text-yellow-400 dark:bg-[#004080]"
+                  : "dark:text-gray-300"
               }
             >
               {pageNumber}
