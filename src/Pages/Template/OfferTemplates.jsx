@@ -1,18 +1,11 @@
 // pages/Admin/OfferTemplates.jsx
 import React, { useState } from "react";
-import {
-  NavLink,
-  Outlet,
-  useLocation,
-  useNavigate,
-  useParams,
-} from "react-router-dom";
+import { NavLink, Outlet, useLocation, useParams } from "react-router-dom";
 import AdminPageNavbar from "../../components/Navbar/AdminPageNavbar";
 
 const OfferTemplates = () => {
   const location = useLocation();
   const params = useParams();
-  const navigate = useNavigate();
 
   const templateId = params.id;
 

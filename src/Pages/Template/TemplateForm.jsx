@@ -91,6 +91,7 @@ const TemplateForm = () => {
 
       if (response.data.success) {
         showToast(` ${response.data.message || "Template saved!"}`, "success");
+        setMessage(response.data.message);
         setTimeout(() => navigate("/admin/templates"), 1500);
       } else {
         showToast(response.data.message || "❌ Operation failed");
