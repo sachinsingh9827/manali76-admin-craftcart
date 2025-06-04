@@ -5,6 +5,7 @@ import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import Button from "../Reusable/Button";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -57,7 +58,7 @@ const LoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-montserrat bg-gray-50">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden font-montserrat bg-black">
       <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl p-10">
         <h6 className="text-center text-2xl font-extrabold text-[#004080] mb-10 tracking-widest uppercase drop-shadow-lg">
           Admin Login
@@ -123,7 +124,7 @@ const LoginPage = () => {
               <p className="text-right text-sm text-[#004080] mt-2">
                 <Link
                   to="/forget-password"
-                  className="text-yellow-400 hover:underline font-medium"
+                  className="text-yellow-400 hover:text-[#004080] font-medium transition-colors duration-300"
                 >
                   Forgot Password?
                 </Link>
@@ -132,7 +133,7 @@ const LoginPage = () => {
               <div className="relative w-full max-w-md mx-auto">
                 <span className="absolute -inset-1 rounded-xl bg-gradient-to-r from-yellow-400 to-yellow-300 opacity-40 blur-lg animate-gradient-x"></span>
 
-                <button
+                <Button
                   type="submit"
                   disabled={isSubmitting}
                   className="relative w-full py-4 bg-[#004080] text-yellow-400 font-bold rounded-xl shadow-lg overflow-hidden hover:scale-105 transition-transform focus:outline-none focus:ring-4 focus:ring-yellow-300 z-10"
@@ -140,7 +141,7 @@ const LoginPage = () => {
                   <span className="relative z-10">
                     {isSubmitting ? "Logging In..." : "Login"}
                   </span>
-                </button>
+                </Button>
               </div>
             </Form>
           )}
