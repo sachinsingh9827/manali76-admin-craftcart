@@ -39,6 +39,12 @@ import CouponList from "./Pages/Coupon/CouponList";
 
 import Coupon from "./Pages/Coupon/Coupon";
 import AddCouponPage from "./Pages/Coupon/AddCouponForm";
+import OfferTemplates from "./Pages/Template/OfferTemplates";
+import TemplateList from "./Pages/Template/TemplateList";
+import TemplateForm from "./Pages/Template/TemplateForm";
+import Banner from "./Pages/Banner/Banner";
+import BannerList from "./Pages/Banner/BannerList";
+import BannerForm from "./Pages/Banner/BannerForm";
 
 function App() {
   useThemeEffect();
@@ -100,7 +106,16 @@ function App() {
             <Route index element={<CouponList />} />
             <Route path="edit/:id?" element={<AddCouponPage />} />
           </Route>
-
+          <Route path="templates" element={<OfferTemplates />}>
+            <Route index element={<TemplateList />} />
+            <Route path="new" element={<TemplateForm />} />
+            <Route path=":id" element={<TemplateForm />} />
+          </Route>
+          <Route path="banners" element={<Banner />}>
+            <Route index element={<BannerList />} />
+            <Route path="new" element={<BannerForm />} />
+            <Route path=":id" element={<BannerForm />} />
+          </Route>
           <Route path="settings" element={<Settings />} />
           <Route path="reports" element={<Reports />} />
         </Route>
