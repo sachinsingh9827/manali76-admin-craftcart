@@ -39,7 +39,7 @@ const ForgetPasswordPage = () => {
   }, [step]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-gray-50 font-montserrat">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-black font-montserrat">
       <div className="w-full max-w-md bg-white rounded-3xl shadow-xl p-10">
         <h1 className="text-center text-3xl font-bold text-[#004080] mb-6 uppercase">
           {step === 3 ? "Update Password" : "Forgot Password"}
@@ -319,8 +319,8 @@ const ForgetPasswordPage = () => {
         <p className="mt-6 text-center text-[#004080]">
           Back to{" "}
           <a
-            href="/login"
-            className="text-yellow-400 font-semibold hover:underline"
+            href="/"
+            className="text-yellow-400 font-semibold hover:text-[#004080] font-medium transition-colors duration-300"
           >
             Login
           </a>
