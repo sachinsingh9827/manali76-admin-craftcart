@@ -27,6 +27,8 @@ const AdminDashboardGraph = () => {
     { name: "Products", count: stats?.productCount || 0 },
     { name: "Contacts", count: stats?.contactCount || 0 },
     { name: "Coupons", count: stats?.couponCount || 0 },
+    { name: "Banners", count: stats?.bannerCount || 0 },
+    { name: "Templates", count: stats?.templateCount || 0 },
   ];
 
   const renderTick = ({ x, y, payload }) => (

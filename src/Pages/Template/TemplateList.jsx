@@ -1,6 +1,9 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
+import Button from "../../components/Reusable/Button";
+import LoadingPage from "../../components/Navbar/LoadingPage";
+import NoDataFound from "../../components/Reusable/NoDataFound";
 
 const BASE_URL = "http://localhost:5000";
 
@@ -124,23 +127,22 @@ const TemplateList = () => {
   };
 
   return (
-    <div className="p-4 max-w-full mx-auto">
+    <div className="p-1 max-w-full mx-auto">
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-bold text-gray-900 dark:text-white">
-          Offer Templates
+        <h2 className="text-sm uppercase font-bold text-gray-900 dark:text-white">
+          Templates
         </h2>
-        <button
-          onClick={() => navigate("new")}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-        >
-          + New Template
-        </button>
+        <Button onClick={() => navigate("new")}>+ New Template</Button>
       </div>
 
       {loading ? (
-        <p className="text-gray-800 dark:text-gray-200">Loading templates...</p>
+        <p className="text-gray-800 dark:text-gray-200">
+          <LoadingPage />
+        </p>
       ) : templates.length === 0 ? (
-        <p className="text-gray-700 dark:text-gray-300">No templates found.</p>
+        <p className="text-gray-700 dark:text-gray-300">
+          <NoDataFound />
+        </p>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
@@ -162,18 +164,18 @@ const TemplateList = () => {
                   {template.isActive ? "Active" : "Inactive"}
                 </span>
                 <div className="space-x-2">
-                  <button
+                  <Button
                     onClick={() => navigate(`${template._id}`)}
                     className="bg-yellow-400 px-3 py-1 rounded text-black hover:bg-yellow-500"
                   >
                     Edit
-                  </button>
-                  <button
+                  </Button>
+                  <Button
                     onClick={() => handleDelete(template._id)}
                     className="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700"
                   >
                     Delete
-                  </button>
+                  </Button>
                 </div>
               </div>
             </div>

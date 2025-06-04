@@ -48,6 +48,20 @@ const AdminDashboard = () => {
       path: "/admin/coupon",
       description: "View and manage all coupons and discount codes",
     },
+    {
+      id: "Banners",
+      title: "Banners",
+      value: stats?.bannerCount?.toLocaleString() || "0",
+      path: "/admin/banners",
+      description: "Create, edit, activate or deactivate promotional banners",
+    },
+    {
+      id: "Templates",
+      title: "Templates",
+      value: stats?.templateCount?.toLocaleString() || "0",
+      path: "/admin/templates",
+      description: "Design and manage banner layout templates",
+    },
   ];
 
   return (

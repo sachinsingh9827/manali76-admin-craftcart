@@ -54,18 +54,18 @@ const BannerList = () => {
   return (
     <>
       {/* Heading in separate div */}
-      <div className="px-4 mb-4">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-gray-100">
+      <div className="">
+        <h2 className="text-sm uppercase font-semibold text-gray-800 dark:text-gray-100">
           Banner List
         </h2>
       </div>
 
       {/* Banner List Container */}
-      <div className="p-4 max-w-full w-full mx-auto">
+      <div className="p-2 max-w-full ">
         {banners.length === 0 ? (
           <NoDataFound />
         ) : (
-          <div className="flex flex-col gap-6">
+          <div className="flex flex-col gap-4">
             {banners.map((banner) => (
               <div
                 key={banner._id}
@@ -79,10 +79,10 @@ const BannerList = () => {
               >
                 <div
                   style={getBannerStyles(banner.templateId?.layout)}
-                  className="flex items-start gap-4 w-full p-4 text-left"
+                  className="flex items-start gap-4 w-full p-2 text-left"
                 >
                   {/* Banner Text */}
-                  <div className="flex-1 min-w-[200px]">
+                  <div className="flex-1 min-w-auto">
                     <p className="font-bold text-lg mb-2">
                       {banner.couponId?.discountPercentage}% OFF
                     </p>
