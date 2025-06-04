@@ -45,6 +45,9 @@ import TemplateForm from "./Pages/Template/TemplateForm";
 import Banner from "./Pages/Banner/Banner";
 import BannerList from "./Pages/Banner/BannerList";
 import BannerForm from "./Pages/Banner/BannerForm";
+import ProductVideos from "./Pages/Video/Video";
+import VideoList from "./Pages/Video/VideoList";
+import UploadVideoForm from "./Pages/Video/UploadVideoForm";
 
 function App() {
   useThemeEffect();
@@ -116,6 +119,12 @@ function App() {
             <Route path="new" element={<BannerForm />} />
             <Route path=":id" element={<BannerForm />} />
           </Route>
+          <Route path="videos" element={<ProductVideos />}>
+            <Route index element={<VideoList />} />
+            <Route path="new" element={<UploadVideoForm />} />
+            <Route path=":id" element={<UploadVideoForm />} />
+          </Route>
+
           <Route path="settings" element={<Settings />} />
           <Route path="reports" element={<Reports />} />
         </Route>

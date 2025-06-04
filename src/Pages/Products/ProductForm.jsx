@@ -254,7 +254,7 @@ const ProductForm = () => {
 
   return (
     <div className="font-montserrat w-full mx-auto p-1">
-      <h2 className="text-lg font-semibold mb-6 text-start dark:text-gray-200">
+      <h2 className="text-sm uppercase font-semibold mb-6 text-start dark:text-gray-200">
         {id ? "Update Product" : "Add New Product"}
       </h2>
 

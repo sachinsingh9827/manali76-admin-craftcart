@@ -4,12 +4,15 @@ import axios from "axios";
 import Button from "../../components/Reusable/Button";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import NoDataFound from "../../components/Reusable/NoDataFound";
-
-const BASE_URL = "http://localhost:5000";
+import ConfirmationModal from "../../components/Reusable/ConfirmationModal";
+import { showToast } from "../../components/Toast/Toast";
+import offerImage from "../../assets/offerImage.jpeg";
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 
 const TemplateList = () => {
   const [templates, setTemplates] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [deleteId, setDeleteId] = useState(null); // for modal control
   const navigate = useNavigate();
 
   const fetchTemplates = async () => {
@@ -20,6 +23,7 @@ const TemplateList = () => {
       }
     } catch (error) {
       console.error("Failed to load templates", error);
+      showToast("Failed to load templates");
     } finally {
       setLoading(false);
     }
@@ -29,15 +33,20 @@ const TemplateList = () => {
     fetchTemplates();
   }, []);
 
-  const handleDelete = async (id) => {
-    if (!window.confirm("Are you sure you want to delete this template?"))
-      return;
+  const confirmDelete = (id) => {
+    setDeleteId(id);
+  };
+
+  const handleDelete = async () => {
     try {
-      await axios.delete(`${BASE_URL}/api/templates/${id}`);
-      setTemplates((prev) => prev.filter((template) => template._id !== id));
+      await axios.delete(`${BASE_URL}/api/templates/${deleteId}`);
+      setTemplates((prev) => prev.filter((t) => t._id !== deleteId));
+      showToast("Template deleted successfully", "success");
     } catch (err) {
       console.error("Delete failed", err);
-      alert("Failed to delete template.");
+      showToast("Failed to delete template");
+    } finally {
+      setDeleteId(null);
     }
   };
 
@@ -55,12 +64,9 @@ const TemplateList = () => {
       borderWidth,
       borderColor,
       shape,
-      animation,
     } = template.layout;
 
     const isVertical = imagePosition === "top" || imagePosition === "bottom";
-
-    // Determine flex direction based on imagePosition
     const flexDirection = isVertical
       ? imagePosition === "top"
         ? "flex-col"
@@ -69,19 +75,11 @@ const TemplateList = () => {
       ? "flex-row"
       : "flex-row-reverse";
 
-    // Map shape to CSS styles (example)
     const shapeStyles = {
       rectangle: {},
       circle: { borderRadius: "50%" },
       oval: { borderRadius: "50% / 100%" },
-      banner: { borderRadius: borderRadius }, // Use borderRadius for banner or custom style
-    };
-
-    // Animation class map (you can add more or customize)
-    const animationClasses = {
-      pulse: "animate-pulse",
-      bounce: "animate-bounce",
-      "": "",
+      banner: { borderRadius },
     };
 
     return (
@@ -97,23 +95,19 @@ const TemplateList = () => {
           borderStyle,
           borderWidth,
           borderColor,
-          animation: animation ? undefined : undefined, // if using CSS animations, replace here
         }}
       >
         <div className={`flex ${flexDirection} md:h-40`}>
-          {/* Image Block */}
-          <div
-            className={`w-full md:w-1/2 h-32 md:h-full flex items-center justify-center bg-gray-200 text-gray-600 text-sm font-medium dark:bg-gray-700 dark:text-gray-300`}
-          >
-            [ Image ]
+          <div className="w-full md:w-1/2 h-32 md:h-full flex items-center justify-center bg-gray-200 text-gray-600 text-sm font-medium dark:bg-gray-700 dark:text-gray-300">
+            <img
+              src={offerImage}
+              alt="Default Template"
+              className="object-contain h-full"
+            />
           </div>
-
-          {/* Text Block */}
           <div
             className={`w-full md:w-1/2 flex items-center justify-${textPosition} px-4 py-2`}
-            style={{
-              textAlign: textPosition,
-            }}
+            style={{ textAlign: textPosition }}
           >
             <div>
               <p className="font-semibold">50% OFF</p>
@@ -136,13 +130,9 @@ const TemplateList = () => {
       </div>
 
       {loading ? (
-        <p className="text-gray-800 dark:text-gray-200">
-          <LoadingPage />
-        </p>
+        <LoadingPage />
       ) : templates.length === 0 ? (
-        <p className="text-gray-700 dark:text-gray-300">
-          <NoDataFound />
-        </p>
+        <NoDataFound />
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
@@ -171,7 +161,7 @@ const TemplateList = () => {
                     Edit
                   </Button>
                   <Button
-                    onClick={() => handleDelete(template._id)}
+                    onClick={() => confirmDelete(template._id)}
                     className="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700"
                   >
                     Delete
@@ -182,6 +172,15 @@ const TemplateList = () => {
           ))}
         </div>
       )}
+
+      {/* Confirmation Modal */}
+      <ConfirmationModal
+        isOpen={!!deleteId}
+        title="Delete Template"
+        message="Are you sure you want to delete this template? This action cannot be undone."
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteId(null)}
+      />
     </div>
   );
 };

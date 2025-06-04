@@ -12,7 +12,7 @@ const AdminPageNavbar = ({ title = "dashboard!" }) => {
       "
     >
       <h2 className="text-sm font-semibold uppercase m-1">{title}</h2>
-      {/* <ThemeToggleButton /> */}
+      <ThemeToggleButton />
     </nav>
   );
 };

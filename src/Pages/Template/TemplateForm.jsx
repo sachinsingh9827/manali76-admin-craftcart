@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import Button from "../../components/Reusable/Button";
 import { showToast } from "../../components/Toast/Toast";
 
-const BASE_URL = "http://localhost:5000";
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 
 const TemplateForm = () => {
   const { id } = useParams();
