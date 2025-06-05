@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { Formik, Form, Field, ErrorMessage } from "formik";
+import { Formik, Form, Field, ErrorMessage, useFormikContext } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import { toast, ToastContainer } from "react-toastify";
@@ -12,6 +12,26 @@ import ConfirmationModal from "../../components/Reusable/ConfirmationModal";
 import { showToast } from "../../components/Toast/Toast";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
+
+// Component to auto update maxAllowed when product or discount changes
+const AutoMaxAllowed = ({ products }) => {
+  const { values, setFieldValue } = useFormikContext();
+
+  useEffect(() => {
+    if (values.productId && values.discount) {
+      const selectedProduct = products.find((p) => p._id === values.productId);
+      if (selectedProduct) {
+        const price = selectedProduct.price || 0;
+        const maxDiscount = (price * values.discount) / 100;
+        setFieldValue("maxAllowed", maxDiscount.toFixed(2));
+      } else {
+        setFieldValue("maxAllowed", "");
+      }
+    }
+  }, [values.productId, values.discount, products, setFieldValue]);
+
+  return null; // This component does not render anything
+};
 
 const AddCouponPage = () => {
   const navigate = useNavigate();
@@ -96,6 +116,7 @@ const AddCouponPage = () => {
         maxAllowed: Number(values.maxAllowed),
         productId: values.productId,
         expiryDate: values.expiryDate,
+        description: values.description || "",
       };
 
       const res = id
@@ -140,9 +161,7 @@ const AddCouponPage = () => {
   if (loading) {
     return (
       <div className="max-w-4xl mx-auto p-6 bg-white dark:bg-gray-800 rounded shadow-md mt-6">
-        <p className="text-gray-700 dark:text-gray-300">
-          <LoadingPage />
-        </p>
+        <LoadingPage />
       </div>
     );
   }
@@ -166,6 +185,7 @@ const AddCouponPage = () => {
             >
               {({ isSubmitting }) => (
                 <Form className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Coupon Name */}
                   <div>
                     <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                       Coupon Name<span className="text-red-500">*</span>
@@ -182,6 +202,7 @@ const AddCouponPage = () => {
                     />
                   </div>
 
+                  {/* Coupon Code */}
                   <div>
                     <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                       Coupon Code<span className="text-red-500">*</span>
@@ -198,42 +219,8 @@ const AddCouponPage = () => {
                     />
                   </div>
 
-                  <div>
-                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                      Discount (%)<span className="text-red-500">*</span>
-                    </label>
-                    <Field
-                      name="discount"
-                      type="number"
-                      min="1"
-                      max="100"
-                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-                    />
-                    <ErrorMessage
-                      name="discount"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
-                      Max Allowed (₹)<span className="text-red-500">*</span>
-                    </label>
-                    <Field
-                      name="maxAllowed"
-                      type="number"
-                      min="0"
-                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
-                    />
-                    <ErrorMessage
-                      name="maxAllowed"
-                      component="div"
-                      className="text-red-500 text-sm"
-                    />
-                  </div>
-
-                  <div>
+                  {/* Select Product */}
+                  <div className="md:col-span-2">
                     <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                       Select Product<span className="text-red-500">*</span>
                     </label>
@@ -245,7 +232,7 @@ const AddCouponPage = () => {
                       <option value="">-- Select Product --</option>
                       {products.map((p) => (
                         <option key={p._id} value={p._id}>
-                          {p.productId}
+                          {p.name} - ₹{p.price} ({p.productId})
                         </option>
                       ))}
                     </Field>
@@ -256,6 +243,45 @@ const AddCouponPage = () => {
                     />
                   </div>
 
+                  {/* Discount % */}
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Discount (%)<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="discount"
+                      type="number"
+                      min="1"
+                      max="100"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                      step="0.01"
+                    />
+                    <ErrorMessage
+                      name="discount"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+
+                  {/* Max Allowed (Auto-filled) */}
+                  <div>
+                    <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
+                      Max Allowed (₹)<span className="text-red-500">*</span>
+                    </label>
+                    <Field
+                      name="maxAllowed"
+                      type="number"
+                      className="w-full p-2 border rounded bg-white dark:bg-gray-800 text-black dark:text-white"
+                      disabled
+                    />
+                    <ErrorMessage
+                      name="maxAllowed"
+                      component="div"
+                      className="text-red-500 text-sm"
+                    />
+                  </div>
+
+                  {/* Expiry Date */}
                   <div>
                     <label className="block mb-1 font-medium text-gray-700 dark:text-gray-200">
                       Expiry Date<span className="text-red-500">*</span>
@@ -272,14 +298,15 @@ const AddCouponPage = () => {
                     />
                   </div>
 
-                  <div className="md:col-span-2 flex justify-between">
+                  {/* Buttons */}
+                  <div className="md:col-span-2 flex justify-between items-center">
                     {id && (
                       <Button
                         type="button"
                         className="bg-red-600 hover:bg-red-700"
                         onClick={() => setShowConfirmModal(true)}
                       >
-                        Delete Coupon
+                        Delete
                       </Button>
                     )}
                     <Button type="submit" disabled={isSubmitting}>
@@ -288,10 +315,13 @@ const AddCouponPage = () => {
                           ? "Updating..."
                           : "Adding..."
                         : id
-                        ? "Update Coupon"
-                        : "Add Coupon"}
+                        ? "Update "
+                        : "Add "}
                     </Button>
                   </div>
+
+                  {/* This component watches changes and auto sets maxAllowed */}
+                  <AutoMaxAllowed products={products} />
                 </Form>
               )}
             </Formik>

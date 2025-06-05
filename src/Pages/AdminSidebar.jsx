@@ -65,6 +65,7 @@ const AdminSidebar = ({ sidebarOpen, closeSidebar }) => {
             { name: "Templates", path: "/admin/templates" },
             { name: "Banners", path: "/admin/banners" },
             { name: "coupons", path: "/admin/coupon" },
+            { name: "Reviews", path: "/admin/reviews" },
             { name: "Videos", path: "/admin/videos" },
             { name: "Reports", path: "/admin/reports" },
             { name: "Contact", path: "/admin/contact" },

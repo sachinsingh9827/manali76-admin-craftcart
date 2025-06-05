@@ -58,8 +58,7 @@ const CouponDetails = () => {
             <strong>Max Discount Amount:</strong> ₹{coupon.maxDiscount}
           </p>
           <p>
-            <strong>Associated Product ID:</strong>{" "}
-            {coupon.product?._id || "N/A"}
+            <strong>Associated Product:</strong> {coupon.product?.name || "N/A"}
           </p>
           <p>
             <strong>Created At:</strong>{" "}

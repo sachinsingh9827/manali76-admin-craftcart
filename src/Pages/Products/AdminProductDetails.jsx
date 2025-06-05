@@ -120,8 +120,49 @@ const AdminProductDetails = () => {
   if (!product) return <NoDataFound />;
 
   return (
-    <div className="max-w-full mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md p-4">
-      {/* Main info */}
+    <div className="max-w-full mx-auto bg-white dark:bg-gray-900 rounded-lg shadow-md ">
+      {/* Main info */}{" "}
+      <div className="mb-6">
+        <h3 className="text-sm uppercase font-semibold mb-2 text-gray-700 dark:text-gray-300">
+          Image Gallery
+        </h3>
+        <div className="flex flex-wrap gap-3">
+          {product.images.map((img, i) => (
+            <div key={img._id || i} className="relative group">
+              <img
+                src={img.url}
+                alt={`Product ${i}`}
+                onClick={() => setSelectedImage(img.url)}
+                className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition-transform"
+              />
+
+              {/* Hover buttons */}
+              <div className="absolute inset-0 bg-black bg-opacity-30 hidden group-hover:flex items-center justify-center gap-2 rounded">
+                <button
+                  onClick={() => {
+                    setSelectedImageId(img._id);
+                    setShowDeleteModal(true);
+                  }}
+                  className="text-white hover:text-red-500"
+                  title="Delete Image"
+                >
+                  <FaTrash />
+                </button>
+                <button
+                  onClick={() => {
+                    setSelectedImageId(img._id);
+                    setShowUpdateImageModal(true);
+                  }}
+                  className="text-white hover:text-yellow-400"
+                  title="Update Image"
+                >
+                  <FaEdit />
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
       <div className="w-full flex flex-col md:flex-row bg-white dark:bg-gray-800 shadow-md rounded-md p-4 gap-4 border border-gray-200 dark:border-gray-700">
         {/* Main Image */}
         <div className="w-full md:w-1/2 rounded-md overflow-hidden border border-gray-200 dark:border-gray-700">
@@ -172,63 +213,20 @@ const AdminProductDetails = () => {
                   product.isAvailable ? "text-green-600" : "text-red-600"
                 }
               >
-                {product.isAvailable ? "Available" : "Not Available"}
+                {product.isAvailable ? "Available" : "Unavailable"}
               </span>
             </span>
             <Button onClick={toggleAvailability} disabled={updating}>
               {updating
                 ? "Updating..."
                 : product.isAvailable
-                ? "Mark as Not Available"
-                : "Mark as Available"}
+                ? "Unavailable"
+                : "Available"}
             </Button>
           </div>
         </div>
       </div>
-
       {/* Image Gallery */}
-      <div className="mt-6">
-        <h3 className="text-md font-semibold mb-2 text-gray-700 dark:text-gray-300">
-          Image Gallery
-        </h3>
-        <div className="flex flex-wrap gap-3">
-          {product.images.map((img, i) => (
-            <div key={img._id || i} className="relative group">
-              <img
-                src={img.url}
-                alt={`Product ${i}`}
-                onClick={() => setSelectedImage(img.url)}
-                className="w-20 h-20 object-cover border rounded cursor-pointer hover:scale-105 transition-transform"
-              />
-
-              {/* Hover buttons */}
-              <div className="absolute inset-0 bg-black bg-opacity-30 hidden group-hover:flex items-center justify-center gap-2 rounded">
-                <button
-                  onClick={() => {
-                    setSelectedImageId(img._id);
-                    setShowDeleteModal(true);
-                  }}
-                  className="text-white hover:text-red-500"
-                  title="Delete Image"
-                >
-                  <FaTrash />
-                </button>
-                <button
-                  onClick={() => {
-                    setSelectedImageId(img._id);
-                    setShowUpdateImageModal(true);
-                  }}
-                  className="text-white hover:text-yellow-400"
-                  title="Update Image"
-                >
-                  <FaEdit />
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
       {/* Modal Preview */}
       {selectedImage && (
         <div
@@ -254,7 +252,6 @@ const AdminProductDetails = () => {
           </div>
         </div>
       )}
-
       {/* Delete Confirmation Modal */}
       <ConfirmationModal
         isOpen={showDeleteModal}
@@ -266,7 +263,6 @@ const AdminProductDetails = () => {
           setSelectedImageId(null);
         }}
       />
-
       {/* Update Image Modal */}
       <ConfirmationModal
         isOpen={showUpdateImageModal}
