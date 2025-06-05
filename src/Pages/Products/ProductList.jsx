@@ -23,23 +23,41 @@ const ProductList = () => {
     const fetchProducts = async () => {
       setLoading(true);
       try {
-        const res = await fetch(
-          `${BASE_URL}/api/admin/protect?page=${page}&limit=${PAGE_SIZE}`
+        const response = await fetch(
+          `${BASE_URL}/api/admin/protect?page=${page}&limit=${PAGE_SIZE}`,
+          {
+            method: "GET",
+            headers: {
+              "Content-Type": "application/json",
+              // Add Authorization header if required:
+              // Authorization: `Bearer ${yourToken}`,
+            },
+            credentials: "include", // if you’re using cookies
+          }
         );
-        const data = await res.json();
+
+        if (!response.ok) {
+          // Handle non-200 status codes
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+
+        const data = await response.json();
+
         if (data.success) {
           setProducts(data.data || []);
           setTotalPages(data.totalPages || 1);
         } else {
           setProducts([]);
           setTotalPages(1);
+          console.warn("API responded with success: false");
         }
       } catch (err) {
-        console.error("Failed to fetch products:", err);
+        console.error("❌ Failed to fetch products:", err.message);
         setProducts([]);
         setTotalPages(1);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
     fetchProducts();
