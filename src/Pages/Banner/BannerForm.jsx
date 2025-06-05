@@ -255,7 +255,7 @@ const AdminBannerGenerator = () => {
       {!generated && (
         <Button
           type="button"
-          className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded mb-6"
+          className="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded mt-6"
           onClick={() =>
             selectedCoupon && selectedTemplate && setGenerated(true)
           }
