@@ -226,7 +226,7 @@ const ProductForm = () => {
       await apiRequest({
         method: "put",
         url: `${BASE_URL}/api/admin/protect/${id}/status`,
-        data: { active: !productActive },
+        data: { isActive: !productActive }, // changed from active to isActive
       });
       setProductActive(!productActive);
       showToast(
@@ -235,7 +235,8 @@ const ProductForm = () => {
       );
     } catch (err) {
       showToast(
-        "Status change failed: " + (err.message || "Network error.", "error")
+        "Status change failed: " + (err.message || "Network error."),
+        "error"
       );
       console.error(err);
     } finally {
