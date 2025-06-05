@@ -147,7 +147,7 @@ const LoginPage = () => {
           )}
         </Formik>
 
-        {/* <p className="mt-8 text-center text-[#004080] select-none">
+        <p className="mt-8 text-center text-[#004080] select-none">
           Don’t have an account?{" "}
           <Link
             to="/signup"
@@ -155,7 +155,7 @@ const LoginPage = () => {
           >
             Sign up
           </Link>
-        </p> */}
+        </p>
       </div>
 
       <style>{`
