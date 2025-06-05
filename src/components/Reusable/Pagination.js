@@ -26,14 +26,14 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
   return (
     <nav
       aria-label="Pagination Navigation"
-      className="mt-6 flex flex-wrap justify-center items-center gap-3 px-2 sm:px-4"
+      className="mt-6 flex flex-wrap justify-center items-center gap-2"
     >
       {/* Previous Button */}
       <Button
         aria-label="Previous page"
         disabled={page === 1 || loading}
         onClick={() => onPageChange(page - 1)}
-        className="px-3 py-1.5 rounded sm:px-4 sm:py-2 sm:w-auto w-24 text-sm sm:text-base"
+        className="px-2 py-1.5 rounded sm:px-2 sm:py-2 sm:w-auto w-15 text-sm sm:text-base"
         bgColor={page === 1 || loading ? "bg-gray-400" : "bg-[#004080]"}
         hoverBgColor={page === 1 || loading ? "" : "hover:bg-gray-700"}
         textColor={page === 1 || loading ? "text-gray-700" : "text-yellow-400"}
@@ -51,7 +51,7 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
         <Button
           onClick={handleScrollLeft}
           disabled={startIndex === 0}
-          className="w-8 h-8 rounded"
+          className="w-6 h-6 rounded"
           bgColor="bg-gray-200"
           hoverBgColor="hover:bg-gray-300"
           textColor="text-gray-800"
@@ -116,7 +116,7 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
         aria-label="Next page"
         disabled={page === totalPages || totalPages === 0 || loading}
         onClick={() => onPageChange(page + 1)}
-        className="px-3 py-1.5 rounded sm:px-4 sm:py-2 sm:w-auto w-24 text-sm sm:text-base"
+        className="px-2 py-1.5 rounded sm:px-2 sm:py-2 sm:w-auto w-15 text-sm sm:text-base"
         bgColor={
           page === totalPages || totalPages === 0 || loading
             ? "bg-gray-400"

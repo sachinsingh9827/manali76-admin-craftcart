@@ -154,16 +154,10 @@ const TemplateList = () => {
                   {template.isActive ? "Active" : "Inactive"}
                 </span>
                 <div className="space-x-2">
-                  <Button
-                    onClick={() => navigate(`${template._id}`)}
-                    className="bg-yellow-400 px-3 py-1 rounded text-black hover:bg-yellow-500"
-                  >
+                  <Button onClick={() => navigate(`${template._id}`)}>
                     Edit
                   </Button>
-                  <Button
-                    onClick={() => confirmDelete(template._id)}
-                    className="bg-red-600 px-3 py-1 rounded text-white hover:bg-red-700"
-                  >
+                  <Button onClick={() => confirmDelete(template._id)}>
                     Delete
                   </Button>
                 </div>
