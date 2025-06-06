@@ -3,7 +3,8 @@ import { useSelector } from "react-redux";
 import AdminPageNavbar from "../components/Navbar/AdminPageNavbar";
 import CommonCard from "../components/Reusable/CommonCard";
 import LoadingPage from "../components/Navbar/LoadingPage";
-import AdminDashboardGraph from "./AdminDashboardGraph";
+
+import Dashboard from "./Dashboard";
 
 const AdminDashboard = () => {
   const { stats, loading } = useSelector((state) => state.dashboard);
@@ -81,7 +82,6 @@ const AdminDashboard = () => {
 
       {/* Main Content Section */}
       <div className="px-2 pb-2 grid grid-cols-1 lg:grid-cols-1 ">
-        {/* <AdminDashboardGraph isDark={isDark} /> */}
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <LoadingPage />
@@ -92,7 +92,8 @@ const AdminDashboard = () => {
               <CommonCard key={card.id} {...card} />
             ))}
           </div>
-        )}
+        )}{" "}
+        <Dashboard />
       </div>
     </div>
   );
