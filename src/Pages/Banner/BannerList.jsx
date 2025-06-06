@@ -53,58 +53,51 @@ const BannerList = () => {
 
   return (
     <>
-      {/* Heading in separate div */}
-      <div className="">
+      {/* Heading */}
+      <div className="px-4 sm:px-6 lg:px-8 mb-2">
         <h2 className="text-sm uppercase font-semibold text-gray-800 dark:text-gray-100">
           Banner List
         </h2>
       </div>
 
-      {/* Banner List Container */}
-      <div className="p-2 max-w-full ">
+      {/* Banner List */}
+      <div className="px-4 sm:px-6 lg:px-8">
         {banners.length === 0 ? (
           <NoDataFound />
         ) : (
-          <div className="flex flex-col gap-4">
+          <div className=" w-full max-w-full sm:max-w-md md:max-w-lg lg:max-w-2xl xl:max-w-2xl px-1 sm:px-1 lg:px-1">
             {banners.map((banner) => (
               <div
                 key={banner._id}
-                className="
-            rounded-md overflow-hidden bg-white dark:bg-gray-900 
-            shadow-md hover:shadow-lg 
-            dark:shadow-[0_4px_6px_rgba(255,255,255,0.15)] 
-            dark:hover:shadow-[0_8px_12px_rgba(255,255,255,0.25)] 
-            transition-shadow duration-300
-          "
+                className="w-full rounded-md overflow-hidden bg-white dark:bg-gray-900 shadow-md hover:shadow-lg dark:shadow-[0_4px_6px_rgba(255,255,255,0.15)] dark:hover:shadow-[0_8px_12px_rgba(255,255,255,0.25)] transition-shadow duration-300 mb-4"
               >
                 <div
                   style={getBannerStyles(banner.templateId?.layout)}
-                  className="flex items-start gap-4 w-full p-2 text-left"
+                  className="flex items-center  w-full  text-left"
                 >
-                  {/* Banner Text */}
-                  <div className="flex-1 min-w-auto">
-                    <p className="font-bold text-lg mb-2">
+                  {/* Image */}
+                  <img
+                    src={banner.imageUrl || "https://via.placeholder.com/150"}
+                    alt="Banner"
+                    className="w-24 h-24 object-cover rounded-md flex-shrink-0"
+                  />
+
+                  {/* Text */}
+                  <div className="flex-1 min-w-0">
+                    <p className="font-bold text-lg mb-1">
                       {banner.couponId?.discountPercentage}% OFF
                     </p>
-                    <p className="text-sm">
+                    <p className="text-sm text-wrap">
                       Get up to ₹{banner.couponId?.maxDiscount} discount with{" "}
                       <strong>{banner.couponId?.code}</strong> coupon!
                     </p>
                   </div>
-
-                  {/* Banner Image */}
-                  <img
-                    src={banner.imageUrl || "https://via.placeholder.com/150"}
-                    alt="Banner"
-                    className="w-36 h-36 object-contain rounded-md"
-                  />
                 </div>
 
-                {/* Footer actions */}
+                {/* Footer */}
                 <div className="flex justify-end p-3 border-t border-gray-200 dark:border-gray-700">
                   <Button
                     onClick={() => navigate(`/admin/banners/${banner._id}`)}
-                    className=""
                   >
                     Edit Banner
                   </Button>

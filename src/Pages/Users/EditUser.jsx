@@ -8,6 +8,31 @@ import NoDataFound from "../../components/Reusable/NoDataFound";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
+// Reusable product card component for wishlist and cart items
+const ProductCard = ({ product, onDelete, type }) => {
+  return (
+    <div className="border rounded p-1 bg-white dark:bg-gray-700 shadow-md flex flex-col items-center space-y-1">
+      <img
+        src={product.images?.[0]?.url || ""}
+        alt={product.name}
+        className="w-20 h-20 object-cover rounded-full"
+      />
+      <h4 className="text-sm font-semibold text-gray-900 dark:text-white text-center">
+        {product.name}
+      </h4>
+      {/* <p className="text-xs text-gray-700 dark:text-gray-300 text-center line-clamp-2">
+        {product.description}
+      </p> */}
+      <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+        ₹{product.price}
+      </p>
+      <Button onClick={() => onDelete(product._id)} className="mt-1 text-sm">
+        Remove from {type}
+      </Button>
+    </div>
+  );
+};
+
 const EditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
@@ -66,7 +91,7 @@ const EditUser = () => {
   const toggleAvailability = async () => {
     setUpdating(true);
     try {
-      await axios.put(`${BASE_URL}/api/users/${id}/status`, {
+      await axios.put(`${BASE_URL}/api/user/auth/users/${id}/status`, {
         isActive: !isActive,
       });
       setIsActive((prev) => !prev);
@@ -105,6 +130,40 @@ const EditUser = () => {
       ),
     },
   ];
+  const handleDeleteFromWishlist = async (productId) => {
+    try {
+      await axios.post(
+        `${BASE_URL}/api/user/auth/wishlist/remove`,
+        { productId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust if you're storing the token differently
+          },
+        }
+      );
+
+      setUser((prevUser) => ({
+        ...prevUser,
+        wishlist: prevUser.wishlist.filter((item) => item._id !== productId),
+      }));
+    } catch (err) {
+      alert(
+        err.response?.data?.message || "Failed to remove item from wishlist"
+      );
+    }
+  };
+
+  const handleDeleteFromCart = async (productId) => {
+    try {
+      await axios.delete(`${BASE_URL}/api/users/${id}/cart/${productId}`);
+      setUser((prevUser) => ({
+        ...prevUser,
+        cart: prevUser.cart.filter((item) => item._id !== productId),
+      }));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to remove item from cart");
+    }
+  };
 
   if (loading) return <LoadingPage />;
   if (error)
@@ -114,7 +173,7 @@ const EditUser = () => {
   if (!user) return <NoDataFound />;
 
   return (
-    <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-2 sm:p-4">
+    <div className="min-h-auto bg-gray-100 dark:bg-gray-900 p-2 sm:p-4">
       <div className="w-full flex justify-between items-start flex-wrap gap-2 mb-4">
         <h2 className="text-sm sm:text-sm md:text-sm uppercase font-semibold text-gray-900 dark:text-white">
           User Details
@@ -195,6 +254,52 @@ const EditUser = () => {
           Role:{" "}
           <span className="font-medium capitalize">{user.role || "N/A"}</span>
         </p>
+      </div>
+
+      {/* Wishlist Section */}
+      <div className="max-w-full mx-auto mt-4 bg-white dark:bg-gray-800 p-2 rounded shadow">
+        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+          Wishlist ({user.wishlist?.length || 0})
+        </h3>
+        {user.wishlist && user.wishlist.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+            {user.wishlist.map((item) => (
+              <ProductCard
+                key={item._id}
+                product={item}
+                onDelete={handleDeleteFromWishlist}
+                type="wishlist"
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            No items in wishlist.
+          </p>
+        )}
+      </div>
+
+      {/* Cart Section */}
+      <div className="max-w-full mx-auto mt-4 bg-white dark:bg-gray-800 p-2 rounded shadow">
+        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+          Cart ({user.cart?.length || 0})
+        </h3>
+        {user.cart && user.cart.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+            {user.cart.map((item) => (
+              <ProductCard
+                key={item._id}
+                product={item}
+                onDelete={handleDeleteFromCart}
+                type="cart"
+              />
+            ))}
+          </div>
+        ) : (
+          <p className="text-sm text-gray-600 dark:text-gray-400">
+            No items in cart.
+          </p>
+        )}
       </div>
     </div>
   );

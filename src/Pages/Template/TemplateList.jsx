@@ -100,8 +100,8 @@ const TemplateList = () => {
         <div className={`flex ${flexDirection} md:h-40`}>
           <div className="w-full md:w-1/2 h-32 md:h-full flex items-center justify-center bg-gray-200 text-gray-600 text-sm font-medium dark:bg-gray-700 dark:text-gray-300">
             <img
-              src={offerImage}
-              alt="Default Template"
+              src={""}
+              alt="Default Template Image"
               className="object-contain h-full"
             />
           </div>

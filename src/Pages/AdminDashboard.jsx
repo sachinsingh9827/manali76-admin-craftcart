@@ -25,42 +25,42 @@ const AdminDashboard = () => {
       title: "Total Users",
       value: stats?.userCount?.toLocaleString() || "0",
       path: "/admin/users",
-      description: "Manage user accounts and roles",
+      // description: "Manage user accounts and roles",
     },
     {
       id: "products",
       title: "Products",
       value: stats?.productCount?.toLocaleString() || "0",
       path: "/admin/products",
-      description: "Manage product listings and stock",
+      // description: "Manage product listings and stock",
     },
     {
       id: "contact",
       title: "Contact",
       value: stats?.contactCount?.toLocaleString() || "0",
       path: "/admin/contact",
-      description: "View and manage all contact information",
+      // description: "View and manage all contact information",
     },
     {
       id: "coupon",
       title: "Coupon",
       value: stats?.couponCount?.toLocaleString() || "0",
       path: "/admin/coupon",
-      description: "View and manage all coupons and discount codes",
+      // description: "View and manage all coupons and discount codes",
     },
     {
       id: "Banners",
       title: "Banners",
       value: stats?.bannerCount?.toLocaleString() || "0",
       path: "/admin/banners",
-      description: "Create, edit, activate or deactivate promotional banners",
+      // description: "Create, edit, activate or deactivate promotional banners",
     },
     {
       id: "Templates",
       title: "Templates",
       value: stats?.templateCount?.toLocaleString() || "0",
       path: "/admin/templates",
-      description: "Design and manage banner layout templates",
+      // description: "Design and manage banner layout templates",
     },
   ];
 
@@ -80,14 +80,14 @@ const AdminDashboard = () => {
       </div>
 
       {/* Main Content Section */}
-      <div className="px-2 pb-2 grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <AdminDashboardGraph isDark={isDark} />
+      <div className="px-2 pb-2 grid grid-cols-1 lg:grid-cols-1 ">
+        {/* <AdminDashboardGraph isDark={isDark} /> */}
         {loading ? (
           <div className="flex items-center justify-center h-full">
             <LoadingPage />
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-6">
             {cards.map((card) => (
               <CommonCard key={card.id} {...card} />
             ))}

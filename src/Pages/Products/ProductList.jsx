@@ -6,6 +6,7 @@ import NoDataFound from "../../components/Reusable/NoDataFound";
 import Button from "../../components/Reusable/Button";
 import LoadingPage from "../../components/Navbar/LoadingPage";
 import ProductFilter from "../../components/Reusable/ProductFilter";
+import ImageModal from "../../components/Reusable/ImageModal";
 
 const PAGE_SIZE = 5;
 const BASE_URL = "https://craft-cart-backend.vercel.app";
@@ -17,6 +18,8 @@ const ProductList = () => {
   const [page, setPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -63,15 +66,36 @@ const ProductList = () => {
     });
 
   const columns = [
+    {
+      header: "Image",
+      accessor: "images",
+      render: (row) =>
+        row.images[0] ? (
+          <img
+            src={row.images[0].url}
+            alt={row.name}
+            className="w-10 h-10 rounded-full object-cover cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedImage(row.images[0].url);
+              setIsModalOpen(true);
+            }}
+          />
+        ) : (
+          "N/A"
+        ),
+    },
     { header: "P.I.", accessor: "productId" },
-    { header: "Name", accessor: "name" },
-    { header: "Category", accessor: "category" },
     {
       header: "Price",
       accessor: "price",
-      render: (row) => `$${row.price}`,
+      render: (row) => `₹${row.price}`,
     },
-    { header: "Stock", accessor: "stock" },
+    {
+      header: "Author",
+      accessor: "createdBy.name",
+      render: (row) => row.createdBy?.name || "N/A",
+    },
   ];
 
   return (
@@ -80,7 +104,7 @@ const ProductList = () => {
         Product List
       </h2>
 
-      {/* Filter and Add Product */}
+      {/* Filters */}
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-3 mb-4">
         <ProductFilter
           searchTerm={searchTerm}
@@ -102,7 +126,7 @@ const ProductList = () => {
         </div>
       )}
 
-      {/* Table View for Desktop */}
+      {/* Desktop Table */}
       <div className="hidden md:block border border-gray-300 dark:border-gray-600 rounded overflow-x-auto">
         {filteredProducts.length === 0 ? (
           <NoDataFound />
@@ -115,7 +139,7 @@ const ProductList = () => {
         )}
       </div>
 
-      {/* Card View for Mobile */}
+      {/* Mobile Cards */}
       <div className="md:hidden space-y-4">
         {filteredProducts.length === 0 ? (
           <div className="text-center p-4 text-gray-700 dark:text-gray-300">
@@ -128,6 +152,23 @@ const ProductList = () => {
               onClick={() => navigate(`/admin/products/${product._id}`)}
               className="cursor-pointer bg-white dark:bg-gray-800 p-4 rounded shadow border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700 transition"
             >
+              <div className="flex justify-between items-center mb-2">
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  Image:
+                </span>
+                {product.images[0]?.url && (
+                  <img
+                    src={product.images[0].url}
+                    alt={product.name}
+                    className="w-10 h-10 rounded-full object-cover cursor-pointer"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedImage(product.images[0].url);
+                      setIsModalOpen(true);
+                    }}
+                  />
+                )}
+              </div>
               <div className="flex justify-between mb-2">
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
                   P.I.:
@@ -136,36 +177,12 @@ const ProductList = () => {
                   {product.productId}
                 </span>
               </div>
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-gray-900 dark:text-gray-100">
-                  Name:
-                </span>
-                <span className="text-gray-700 dark:text-gray-300">
-                  {product.name}
-                </span>
-              </div>
-              <div className="flex justify-between mb-2">
-                <span className="font-semibold text-gray-900 dark:text-gray-100">
-                  Category:
-                </span>
-                <span className="text-gray-700 dark:text-gray-300">
-                  {product.category}
-                </span>
-              </div>
-              <div className="flex justify-between mb-2">
+              <div className="flex justify-between">
                 <span className="font-semibold text-gray-900 dark:text-gray-100">
                   Price:
                 </span>
                 <span className="text-gray-700 dark:text-gray-300">
-                  ${product.price}
-                </span>
-              </div>
-              <div className="flex justify-between">
-                <span className="font-semibold text-gray-900 dark:text-gray-100">
-                  Stock:
-                </span>
-                <span className="text-gray-700 dark:text-gray-300">
-                  {product.stock}
+                  ₹{product.price}
                 </span>
               </div>
             </div>
@@ -182,6 +199,13 @@ const ProductList = () => {
           loading={loading}
         />
       )}
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        imageUrl={selectedImage}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 };

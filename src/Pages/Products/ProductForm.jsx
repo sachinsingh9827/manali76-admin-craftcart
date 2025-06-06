@@ -55,6 +55,10 @@ const ProductForm = () => {
   const [error, setError] = useState(null);
   const [productActive, setProductActive] = useState(true);
   const [showTooltip, setShowTooltip] = useState(false);
+
+  // Store creator info as object with _id and name
+  const [creator, setCreator] = useState({ _id: "", name: "" });
+
   const [initialValues, setInitialValues] = useState({
     name: "",
     price: "",
@@ -62,7 +66,6 @@ const ProductForm = () => {
     category: "",
     brand: "",
     stock: "",
-    createdBy: "", // This will be sent but not shown in the form
     images: [],
   });
 
@@ -73,7 +76,7 @@ const ProductForm = () => {
 
   const apiRequest = async ({ method, url, data }) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (!user || !user._id) throw new Error("User  not logged in");
+    if (!user || !user._id) throw new Error("User not logged in");
 
     try {
       const config = {
@@ -95,6 +98,7 @@ const ProductForm = () => {
 
   useEffect(() => {
     if (!id) {
+      // New product, clear creator and form
       setInitialValues({
         name: "",
         price: "",
@@ -102,9 +106,9 @@ const ProductForm = () => {
         category: "",
         brand: "",
         stock: "",
-        createdBy: "", // Reset for new product
         images: [],
       });
+      setCreator({ _id: "", name: "" });
       setExistingImages([]);
       setProductActive(true);
       setError(null);
@@ -113,6 +117,7 @@ const ProductForm = () => {
 
     setLoading(true);
     setError(null);
+
     axios
       .get(`${BASE_URL}/api/admin/protect/${id}`)
       .then((res) => {
@@ -125,11 +130,16 @@ const ProductForm = () => {
             category: product.category || "",
             brand: product.brand || "",
             stock: product.stock || "",
-            createdBy: product.createdBy || "", // Set for existing product
             images: [],
           });
           setExistingImages(product.images || []);
           setProductActive(product.isAvailable ?? true);
+
+          // Set creator from fetched product's createdBy object
+          setCreator({
+            _id: product.createdBy?._id || "",
+            name: product.createdBy?.name || "",
+          });
         } else {
           setError("Failed to load product");
         }
@@ -153,25 +163,31 @@ const ProductForm = () => {
 
   const handleSubmit = async (values, { setSubmitting, resetForm }) => {
     const user = JSON.parse(localStorage.getItem("user"));
-    if (user && user._id) {
-      values.createdBy = user._id; // Set createdBy to the user's ID
-    } else {
-      showToast("User  not logged in", "info");
+    if (!user || !user._id) {
+      showToast("User not logged in", "info");
       setSubmitting(false);
       return;
     }
 
+    // Use existing creator _id if updating; else current user's id if new product
+    const creatorId = id ? creator._id : user._id;
+
     const formData = new FormData();
+
     Object.entries(values).forEach(([key, val]) => {
-      if (key !== "images") formData.append(key, val);
+      if (key !== "images") {
+        formData.append(key, val);
+      }
     });
+
+    formData.append("createdBy", creatorId);
 
     if (values.images && values.images.length > 0) {
       values.images.forEach((file) => formData.append("images", file));
     }
 
     try {
-      const isUpdate = !!id; // Determine if we are updating
+      const isUpdate = !!id;
       const url = isUpdate
         ? `${BASE_URL}/api/admin/protect/${id}`
         : `${BASE_URL}/api/admin/protect`;
@@ -226,7 +242,7 @@ const ProductForm = () => {
       await apiRequest({
         method: "put",
         url: `${BASE_URL}/api/admin/protect/${id}/status`,
-        data: { isActive: !productActive }, // changed from active to isActive
+        data: { isActive: !productActive },
       });
       setProductActive(!productActive);
       showToast(
@@ -270,7 +286,7 @@ const ProductForm = () => {
           >
             {({ isSubmitting, setFieldValue, values }) => (
               <Form className="space-y-6">
-                {/* Images Preview */}
+                {/* Image previews */}
                 {(existingImages.length > 0 || newImagesPreview.length > 0) && (
                   <div className="flex flex-wrap gap-4 mb-6">
                     {existingImages.map((imgObj, idx) => (
@@ -281,7 +297,6 @@ const ProductForm = () => {
                         className="w-24 h-24 object-cover rounded-md border border-gray-300 dark:border-gray-600"
                       />
                     ))}
-
                     {newImagesPreview.map((src, idx) => (
                       <img
                         key={"new-" + idx}
@@ -293,7 +308,7 @@ const ProductForm = () => {
                   </div>
                 )}
 
-                {/* Upload images input */}
+                {/* Upload */}
                 <div>
                   <label
                     htmlFor="images"
@@ -308,78 +323,42 @@ const ProductForm = () => {
                     multiple
                     accept="image/*"
                     onChange={(e) => onImagesChange(e, setFieldValue)}
-                    className="w-full border border-gray-300 rounded-md p-2
-                   text-gray-900 dark:text-gray-100
-                   bg-white dark:bg-gray-700
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full border border-gray-300 rounded-md p-1 mt-1 text-sm dark:bg-gray-700 dark:text-gray-100"
                   />
                   <ErrorMessage
                     name="images"
                     component="div"
-                    className="text-red-600 mt-1 text-sm"
+                    className="text-red-600 text-sm"
                   />
                 </div>
 
-                {/* Name & Brand in one row */}
-                <div className="flex gap-6">
-                  {/* Name */}
-                  <div className="flex-1">
-                    <label
-                      htmlFor="name"
-                      className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
-                    >
-                      Name
-                    </label>
-                    <Field
-                      id="name"
-                      name="name"
-                      type="text"
-                      placeholder="Product Name"
-                      className="w-full p-1 border border-gray-300 rounded-md
-                     text-gray-900 dark:text-gray-100
-                     bg-white dark:bg-gray-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <ErrorMessage
-                      name="name"
-                      component="div"
-                      className="text-red-600 mt-1 text-sm"
-                    />
-                  </div>
-
-                  {/* Brand */}
-                  <div className="flex-1">
-                    <label
-                      htmlFor="brand"
-                      className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
-                    >
-                      Brand (optional)
-                    </label>
-                    <Field
-                      id="brand"
-                      name="brand"
-                      type="text"
-                      placeholder="Brand"
-                      className="w-full p-1 border border-gray-300 rounded-md
-                     text-gray-900 dark:text-gray-100
-                     bg-white dark:bg-gray-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    />
-                    <ErrorMessage
-                      name="brand"
-                      component="div"
-                      className="text-red-600 mt-1 text-sm"
-                    />
-                  </div>
+                {/* Name */}
+                <div>
+                  <label
+                    htmlFor="name"
+                    className="block font-semibold text-gray-700 dark:text-gray-300"
+                  >
+                    Name
+                  </label>
+                  <Field
+                    id="name"
+                    name="name"
+                    placeholder="Product Name"
+                    className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-100"
+                  />
+                  <ErrorMessage
+                    name="name"
+                    component="div"
+                    className="text-red-600 text-sm"
+                  />
                 </div>
 
-                {/* Price & Stock in one row */}
-                <div className="flex gap-6">
-                  {/* Price */}
-                  <div className="flex-1">
+                {/* Price + Stock */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="w-full">
                     <label
                       htmlFor="price"
-                      className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
+                      className="block font-semibold text-gray-700 dark:text-gray-300"
                     >
                       Price
                     </label>
@@ -387,24 +366,21 @@ const ProductForm = () => {
                       id="price"
                       name="price"
                       type="number"
+                      step="0.01"
                       placeholder="Price"
-                      className="w-full p-1 border border-gray-300 rounded-md
-                     text-gray-900 dark:text-gray-100
-                     bg-white dark:bg-gray-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-100"
                     />
                     <ErrorMessage
                       name="price"
                       component="div"
-                      className="text-red-600 mt-1 text-sm"
+                      className="text-red-600 text-sm"
                     />
                   </div>
 
-                  {/* Stock */}
-                  <div className="flex-1">
+                  <div className="w-full">
                     <label
                       htmlFor="stock"
-                      className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
+                      className="block font-semibold text-gray-700 dark:text-gray-300"
                     >
                       Stock
                     </label>
@@ -413,24 +389,64 @@ const ProductForm = () => {
                       name="stock"
                       type="number"
                       placeholder="Stock"
-                      className="w-full p-1 border border-gray-300 rounded-md
-                     text-gray-900 dark:text-gray-100
-                     bg-white dark:bg-gray-700
-                     focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-100"
                     />
                     <ErrorMessage
                       name="stock"
                       component="div"
-                      className="text-red-600 mt-1 text-sm"
+                      className="text-red-600 text-sm"
                     />
                   </div>
                 </div>
 
-                {/* Description (full width) */}
+                {/* Category + Brand */}
+                <div className="flex flex-col md:flex-row gap-4">
+                  <div className="w-full">
+                    <label
+                      htmlFor="category"
+                      className="block font-semibold text-gray-700 dark:text-gray-300"
+                    >
+                      Category
+                    </label>
+                    <Field
+                      id="category"
+                      name="category"
+                      placeholder="Category"
+                      className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-100"
+                    />
+                    <ErrorMessage
+                      name="category"
+                      component="div"
+                      className="text-red-600 text-sm"
+                    />
+                  </div>
+
+                  <div className="w-full">
+                    <label
+                      htmlFor="brand"
+                      className="block font-semibold text-gray-700 dark:text-gray-300"
+                    >
+                      Brand
+                    </label>
+                    <Field
+                      id="brand"
+                      name="brand"
+                      placeholder="Brand"
+                      className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-100"
+                    />
+                    <ErrorMessage
+                      name="brand"
+                      component="div"
+                      className="text-red-600 text-sm"
+                    />
+                  </div>
+                </div>
+
+                {/* Description */}
                 <div>
                   <label
                     htmlFor="description"
-                    className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
+                    className="block font-semibold text-gray-700 dark:text-gray-300"
                   >
                     Description
                   </label>
@@ -438,133 +454,38 @@ const ProductForm = () => {
                     as="textarea"
                     id="description"
                     name="description"
-                    placeholder="Product description"
                     rows="3"
-                    className="w-full p-1 border border-gray-300 rounded-md
-                   text-gray-900 dark:text-gray-100
-                   bg-white dark:bg-gray-700
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="Product Description"
+                    className="w-full p-2 border border-gray-300 rounded-md dark:bg-gray-700 dark:text-gray-100"
                   />
                   <ErrorMessage
                     name="description"
                     component="div"
-                    className="text-red-600 mt-1 text-sm"
+                    className="text-red-600 text-sm"
                   />
                 </div>
 
-                {/* Category */}
-                <div>
-                  <label
-                    htmlFor="category"
-                    className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
-                  >
-                    Category
-                  </label>
-                  <Field
-                    id="category"
-                    name="category"
-                    type="text"
-                    placeholder="Category"
-                    className="w-full p-1 border border-gray-300 rounded-md
-                   text-gray-900 dark:text-gray-100
-                   bg-white dark:bg-gray-700
-                   focus:outline-none focus:ring-2 focus:ring-blue-500"
-                  />
-                  <ErrorMessage
-                    name="category"
-                    component="div"
-                    className="text-red-600 mt-1 text-sm"
-                  />
-                </div>
-
-                {/* Created By - Only show if updating an existing product */}
-                {id && (
-                  <div>
-                    <label
-                      htmlFor="createdBy"
-                      className="block mb-1 font-semibold text-gray-700 dark:text-gray-300"
-                    >
-                      Created By
-                    </label>
-                    <Field name="createdBy">
-                      {({ form }) => {
-                        const name = form.values.createdBy?.name || "";
-
-                        return (
-                          <div className="relative w-full">
-                            <input
-                              id="createdBy"
-                              type="text"
-                              placeholder="Created By"
-                              className="w-full p-1 border border-gray-300 rounded-md
-            text-gray-900 dark:text-gray-100
-            bg-white dark:bg-gray-700
-            focus:outline-none focus:ring-2 focus:ring-blue-500"
-                              value={name}
-                              readOnly
-                              onMouseEnter={() => setShowTooltip(true)}
-                              onMouseLeave={() => setShowTooltip(false)}
-                              onClick={() => setShowTooltip(true)}
-                            />
-
-                            {showTooltip && (
-                              <div className="absolute top-full mt-1 left-0 bg-yellow-100 text-yellow-800 px-2 py-1 text-xs rounded shadow-md z-10">
-                                ⚠️ This field is not editable.
-                              </div>
-                            )}
-                          </div>
-                        );
-                      }}
-                    </Field>
-
-                    <ErrorMessage
-                      name="createdBy"
-                      component="div"
-                      className="text-red-600 mt-1 text-sm"
-                    />
-                  </div>
-                )}
-
-                {/* Submit Button */}
-                <div className="flex items-center gap-4">
-                  <Button type="submit" disabled={isSubmitting}>
-                    {id ? "Update" : "Add Product"}
-                  </Button>
-
-                  {/* Active toggle button, only for update */}
-                  {id && (
-                    <Button
-                      onClick={toggleStatus}
-                      className={`px-6 py-2 ${
-                        productActive
-                          ? "bg-green-600 hover:bg-green-700"
-                          : "bg-red-600 hover:bg-red-700"
-                      }`}
-                      type="button"
-                    >
-                      {productActive ? "Active" : "Inactive"}
-                    </Button>
-                  )}
-
-                  {/* Delete Button, only for update */}
-                  {id && (
-                    <Button onClick={openDeleteModal} type="button">
-                      Delete
-                    </Button>
-                  )}
-                </div>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="w-full py-2 bg-blue-600 hover:bg-blue-700 rounded-md text-white font-semibold"
+                >
+                  {id ? "Update Product" : "Add Product"}
+                </Button>
               </Form>
             )}
           </Formik>
         </div>
 
-        {/* PRODUCT DETAILS */}
+        {/* DETAILS & ACTIONS */}
         {id && (
-          <div className="w-full max-w-md">
+          <div className="w-full lg:w-1/3 space-y-6">
             <AdminProductDetails
               productId={id}
-              existingImages={existingImages}
-              setExistingImages={setExistingImages}
+              createdByName={creator.name}
+              isActive={productActive}
+              toggleStatus={toggleStatus}
+              openDeleteModal={openDeleteModal}
             />
           </div>
         )}
@@ -572,7 +493,7 @@ const ProductForm = () => {
 
       <DeleteConfirmModal
         visible={showDeleteModal}
-        title="Confirm Delete"
+        title="Delete Product"
         onCancel={closeDeleteModal}
         onConfirm={confirmDelete}
       />
