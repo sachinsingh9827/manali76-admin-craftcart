@@ -72,11 +72,7 @@ const Dashboard = () => {
     : [{ date: "No Data", count: 0 }];
 
   return (
-    <div className="p-4 font-montserrat min-h-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-      <h2 className="text-3xl font-bold mb-8 text-center md:text-left">
-        Admin Dashboard
-      </h2>
-
+    <div className="mt-2 font-montserrat min-h-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Charts Section */}
       <section className="grid grid-cols-1 md:grid-cols-10 gap-4 mb-10 w-full">
         {/* Totals Bar Chart */}
