@@ -1,156 +1,119 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useParams, Link } from "react-router-dom";
 import axios from "axios";
-import Pagination from "../../components/Reusable/Pagination";
-import NoDataFound from "../../components/Reusable/NoDataFound";
-import LoadingPage from "../../components/Navbar/LoadingPage";
-import ReusableTable from "../../components/Reusable/ReusableTable";
-import Button from "../../components/Reusable/Button";
 
-const PAGE_SIZE = 5;
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
-const OrderList = () => {
-  const [orders, setOrders] = useState([]);
-  const [searchTerm, setSearchTerm] = useState("");
-  const [page, setPage] = useState(1);
-  const [totalPages, setTotalPages] = useState(1);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-
-  const navigate = useNavigate();
+const ViewOrder = () => {
+  const { id } = useParams(); // Order ID from URL
+  const [order, setOrder] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      setLoading(true);
-      setError(null);
+    const fetchOrder = async () => {
       try {
-        const response = await axios.get(
-          `${BASE_URL}/api/orders?search=${encodeURIComponent(
-            searchTerm
-          )}&page=${page}&limit=${PAGE_SIZE}`
-        );
-
-        if (response.data.success) {
-          setOrders(response.data.data || []);
-          setTotalPages(response.data.totalPages || 1);
+        setLoading(true);
+        const res = await axios.get(`${BASE_URL}/api/order/${id}`);
+        if (res.data.success && res.data.order) {
+          setOrder(res.data.order);
         } else {
-          setOrders([]);
-          setTotalPages(1);
-          setError("Failed to load orders");
+          setError("Order not found.");
         }
       } catch (err) {
-        setError("Failed to load orders");
-        setOrders([]);
-        setTotalPages(1);
-        console.error(err);
+        setError("Failed to fetch order.");
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     };
 
-    fetchOrders();
-  }, [page, searchTerm]);
+    if (id) fetchOrder();
+  }, [id]);
 
-  // Optional local filter if backend search is not enough
-  const filteredOrders = orders.filter(
-    (order) =>
-      order.orderId?.toString().includes(searchTerm) ||
-      order.status?.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  if (loading)
+    return (
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
+        Loading order...
+      </p>
+    );
+
+  if (error)
+    return (
+      <p className="text-center mt-6 text-red-600 font-semibold">{error}</p>
+    );
+
+  if (!order)
+    return (
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
+        No order found.
+      </p>
+    );
+
+  const {
+    orderId,
+    status,
+    paymentMethod,
+    totalAmount,
+    deliveryAddress,
+    createdAt,
+    items = [],
+  } = order;
 
   return (
-    <div className="p-2 sm:p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
-      <h2 className="text-sm uppercase font-semibold mb-4 text-gray-900 dark:text-gray-100 text-center sm:text-left">
-        Order List
+    <div className="max-w-3xl mx-auto p-4 bg-white dark:bg-gray-800 rounded shadow">
+      <h2 className="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+        Order Details #{orderId}
       </h2>
 
-      {/* Search */}
-      <div className="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
-        <input
-          type="text"
-          placeholder="Search by Order ID or Status..."
-          value={searchTerm}
-          onChange={(e) => {
-            setSearchTerm(e.target.value);
-            setPage(1); // Reset to page 1 on new search
-          }}
-          className="p-2 sm:p-1 border rounded w-full sm:max-w-xs
-            text-gray-900 dark:text-gray-100
-            bg-white dark:bg-gray-800
-            border-gray-300 dark:border-gray-600
-            placeholder-gray-500 dark:placeholder-gray-400
-            transition-colors duration-300
-            focus:outline-none focus:ring-2 focus:ring-blue-500"
-        />
+      <div className="mb-4">
+        <p className="text-gray-700 dark:text-gray-300">
+          <strong>Status:</strong> {status}
+        </p>
+        <p className="text-gray-700 dark:text-gray-300">
+          <strong>Payment Method:</strong> {paymentMethod}
+        </p>
+        <p className="text-gray-700 dark:text-gray-300">
+          <strong>Total Amount:</strong> ₹{totalAmount}
+        </p>
+        <p className="text-gray-700 dark:text-gray-300">
+          <strong>Placed On:</strong> {new Date(createdAt).toLocaleString()}
+        </p>
       </div>
 
-      {/* Loading */}
-      {loading && (
-        <p className="text-center text-gray-700 dark:text-gray-300 mb-4">
-          <LoadingPage />
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+          Delivery Address
+        </h3>
+        <p className="text-gray-700 dark:text-gray-300">
+          {deliveryAddress?.street}, {deliveryAddress?.city},{" "}
+          {deliveryAddress?.state} - {deliveryAddress?.postalCode},{" "}
+          {deliveryAddress?.country}
         </p>
-      )}
+      </div>
 
-      {/* No Data */}
-      {!loading && !error && filteredOrders.length === 0 && (
-        <div className="text-center text-gray-700 dark:text-gray-300">
-          <NoDataFound />
-        </div>
-      )}
+      <div className="mb-4">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-gray-200">
+          Items
+        </h3>
+        <ul className="list-disc ml-5 text-gray-700 dark:text-gray-300">
+          {items.map((item, index) => (
+            <li key={index}>
+              {item.name} - {item.quantity} x ₹{item.price}
+            </li>
+          ))}
+        </ul>
+      </div>
 
-      {/* Error */}
-      {error && <p className="text-center text-red-600 mb-4">{error}</p>}
-
-      {/* Table */}
-      {!loading && !error && filteredOrders.length > 0 && (
-        <ReusableTable
-          columns={[
-            {
-              header: "SN.",
-              accessor: "sn",
-              render: (_, index) => index + 1 + (page - 1) * PAGE_SIZE, // Serial number with pagination offset
-            },
-            { header: "Order ID", accessor: "orderId" },
-            { header: "Status", accessor: "status" },
-            {
-              header: "Total Amount",
-              accessor: "totalAmount",
-              render: (order) => `₹${order.totalAmount.toFixed(2)}`,
-            },
-            {
-              header: "Actions",
-              accessor: "actions",
-              render: (order) => (
-                <Button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(`admin/orders/view/${order._id}`); // Corrected path here
-                  }}
-                  className="text-sm px-2 py-1"
-                >
-                  View
-                </Button>
-              ),
-            },
-          ]}
-          data={filteredOrders}
-          onRowClick={(order) => navigate(`admin/orders/view/${order._id}`)} // Corrected path here
-        />
-      )}
-
-      {/* Pagination */}
-      {orders.length > 0 && (
-        <div className="mt-6 flex justify-center">
-          <Pagination
-            page={page}
-            totalPages={totalPages}
-            onPageChange={setPage}
-            loading={loading}
-          />
-        </div>
-      )}
+      <div className="flex justify-end mt-6">
+        <Link
+          to={`/admin/orders/edit/${id}`}
+          className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+        >
+          Edit Order
+        </Link>
+      </div>
     </div>
   );
 };
 
-export default OrderList;
+export default ViewOrder;
