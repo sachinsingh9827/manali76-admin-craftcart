@@ -50,6 +50,7 @@ import VideoList from "./Pages/Video/VideoList";
 import UploadVideoForm from "./Pages/Video/UploadVideoForm";
 import OrderList from "./Pages/Orders/OrderList";
 import ViewOrder from "./Pages/Orders/ViewOrder";
+import EditOrder from "./Pages/Orders/EditOrder";
 
 function App() {
   useThemeEffect();

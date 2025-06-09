@@ -10,7 +10,7 @@ const ViewOrder = () => {
   useEffect(() => {
     async function fetchOrder() {
       try {
-        const res = await axios.get(`/api/order/${id}`); // your API to get order by id
+        const res = await axios.get(`/api/order/${id}`); // API to get order by id
         setOrder(res.data.order);
       } catch (error) {
         console.error("Failed to load order:", error);
@@ -38,7 +38,7 @@ const ViewOrder = () => {
       <p>
         <strong>Total Amount:</strong> ₹{order.totalAmount}
       </p>
-      {/* Show more order details as needed */}
+      {/* Add more detailed info here, like items, address, payment, etc */}
     </div>
   );
 };

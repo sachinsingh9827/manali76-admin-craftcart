@@ -3,7 +3,7 @@ import { NavLink, Outlet, useParams, useLocation } from "react-router-dom";
 import AdminPageNavbar from "../../components/Navbar/AdminPageNavbar";
 
 const Orders = () => {
-  const { id } = useParams(); // order id for View Order tab
+  const { id } = useParams();
   const location = useLocation();
   const [error, setError] = useState("");
 
@@ -48,16 +48,30 @@ const Orders = () => {
         >
           View Order
         </NavLink>
+
+        {/* Add Edit tab if you want */}
+        <NavLink
+          to={id ? `/orders/edit/${id}` : "/orders"}
+          onClick={handleViewOrderClick}
+          className={({ isActive }) =>
+            `px-4 py-2 text-sm sm:text-base rounded-md font-medium transition duration-200 ${
+              isActive
+                ? "bg-white text-[#004080] shadow-md border-r-4 border-[#004080] dark:border-yellow-400"
+                : "bg-white dark:bg-gray-800 text-[#004080] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700"
+            }`
+          }
+        >
+          Edit Order
+        </NavLink>
       </div>
 
-      {/* Error Message */}
       {error && (
         <div className="mt-4 mx-4 sm:mx-6 p-2 bg-red-100 text-red-700 rounded-md max-w-md">
           {error}
         </div>
       )}
 
-      {/* Nested Route Content */}
+      {/* Outlet for nested routes */}
       <div className="px-4 sm:px-6 py-4">
         <Outlet />
       </div>
