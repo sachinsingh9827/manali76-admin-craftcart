@@ -115,7 +115,7 @@ const OrderList = () => {
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/admin/orders/view/${order._id}`);
+                    navigate(`/admin/orders/edit/${order._id}`);
                   }}
                   className="text-sm px-2 py-1"
                 >
@@ -125,7 +125,7 @@ const OrderList = () => {
             },
           ]}
           data={filteredOrders}
-          onRowClick={(order) => navigate(`/admin/orders/view/${order._id}`)}
+          onRowClick={(order) => navigate(`/admin/orders/edit/${order._id}`)}
         />
       )}
 
