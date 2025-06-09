@@ -36,7 +36,7 @@ const Orders = () => {
         </NavLink>
 
         <NavLink
-          to={id ? location.pathname : "/orders"}
+          to={id ? `/orders/view/${id}` : "/orders"}
           onClick={handleViewOrderClick}
           className={({ isActive }) =>
             `px-4 py-2 text-sm sm:text-base rounded-md font-medium transition duration-200 ${
