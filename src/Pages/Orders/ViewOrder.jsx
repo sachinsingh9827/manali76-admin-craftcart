@@ -94,13 +94,14 @@ const EditOrder = () => {
     setStatusSaving(true);
     setStatusError("");
     try {
-      const res = await axios.put(`${BASE_URL}/api/orders/${id}/status`, {
+      const res = await axios.patch(`${BASE_URL}/api/orders/${id}/status`, {
         status,
       });
+
       if (res.data.status === "success") {
         alert("Order status updated successfully!");
-        // Optionally update the local order state
-        setOrder((prev) => ({ ...prev, status }));
+        // Update local order state with the new status from response
+        setOrder((prev) => ({ ...prev, status: res.data.order.status }));
       } else {
         setStatusError(res.data.message || "Failed to update status.");
       }
