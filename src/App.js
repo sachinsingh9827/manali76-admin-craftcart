@@ -22,7 +22,6 @@ import AdminDashboard from "./Pages/AdminDashboard";
 import Users from "./Pages/Users/Users";
 import UserList from "./Pages/Users/UserList";
 import EditUser from "./Pages/Users/EditUser";
-import Orders from "./Pages/Users/Orders";
 import Products from "./Pages/Products/Products";
 import ProductList from "./Pages/Products/ProductList";
 import ProductForm from "./Pages/Products/ProductForm";
@@ -48,9 +47,10 @@ import BannerForm from "./Pages/Banner/BannerForm";
 import ProductVideos from "./Pages/Video/Video";
 import VideoList from "./Pages/Video/VideoList";
 import UploadVideoForm from "./Pages/Video/UploadVideoForm";
-import OrderList from "./Pages/Orders/OrderList";
+import Orders from "./Pages/Orders/Order";
 import ViewOrder from "./Pages/Orders/ViewOrder";
 import EditOrder from "./Pages/Orders/EditOrder";
+import OrderList from "./Pages/Orders/OrderList";
 
 function App() {
   useThemeEffect();
@@ -97,9 +97,8 @@ function App() {
           <Route path="users" element={<Users />}>
             <Route index element={<UserList />} />
             <Route path="edit/:id" element={<EditUser />} />
-            <Route path="orders" element={<Orders />} />
           </Route>
-          <Route path="orders" element={<OrderList />}>
+          <Route path="orders" element={<Orders />}>
             <Route index element={<OrderList />} />
             <Route path="view/:id" element={<ViewOrder />} />
             <Route path="edit/:id" element={<EditOrder />} />
