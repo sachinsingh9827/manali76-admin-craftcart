@@ -48,7 +48,6 @@ import ProductVideos from "./Pages/Video/Video";
 import VideoList from "./Pages/Video/VideoList";
 import UploadVideoForm from "./Pages/Video/UploadVideoForm";
 import Orders from "./Pages/Orders/Order";
-import ViewOrder from "./Pages/Orders/ViewOrder";
 import EditOrder from "./Pages/Orders/EditOrder";
 import OrderList from "./Pages/Orders/OrderList";
 
@@ -100,7 +99,6 @@ function App() {
           </Route>
           <Route path="orders" element={<Orders />}>
             <Route index element={<OrderList />} />
-            <Route path="view/:id" element={<ViewOrder />} />
             <Route path="edit/:id" element={<EditOrder />} />
           </Route>
 
