@@ -151,6 +151,7 @@ const EditOrder = () => {
               type="button"
               onClick={handleStatusUpdate}
               disabled={statusSaving}
+              className="mt-2 "
             >
               {statusSaving ? "Updating Status..." : "Update Status Only"}
             </Button>
