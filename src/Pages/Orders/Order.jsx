@@ -1,26 +1,19 @@
-import React, { useState } from "react";
-import { NavLink, Outlet, useParams } from "react-router-dom";
+import React from "react";
+import { NavLink, Outlet, useLocation } from "react-router-dom";
 import AdminPageNavbar from "../../components/Navbar/AdminPageNavbar";
 
 const Orders = () => {
-  const { id } = useParams(); // from URL
-  const [error, setError] = useState("");
-
-  const handleNavigationClick = (e) => {
-    if (!id) {
-      e.preventDefault();
-      setError("Please select an order first.");
-      setTimeout(() => setError(""), 3000);
-    }
-  };
+  const location = useLocation();
+  const isViewingOrder = location.pathname.includes("/admin/orders/view");
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white font-montserrat">
       <AdminPageNavbar title="Orders" />
 
+      {/* Nav Tabs */}
       <div className="flex flex-wrap sm:flex-nowrap gap-2 sm:space-x-2 border-b border-gray-300 dark:border-yellow-400 px-4 pt-4">
         <NavLink
-          to=""
+          to="/admin/orders"
           end
           className={({ isActive }) =>
             `px-4 py-2 text-sm sm:text-base rounded-md font-medium transition duration-200 ${
@@ -34,26 +27,25 @@ const Orders = () => {
         </NavLink>
 
         <NavLink
-          to={id ? `/admin/orders/view/${id}` : "#"}
-          onClick={handleNavigationClick}
+          to={isViewingOrder ? location.pathname : "#"}
           className={({ isActive }) =>
             `px-4 py-2 text-sm sm:text-base rounded-md font-medium transition duration-200 ${
-              isActive
+              isActive || isViewingOrder
                 ? "bg-white text-[#004080] shadow-md border-r-4 border-[#004080] dark:border-yellow-400"
-                : "bg-white dark:bg-gray-800 text-[#004080] dark:text-white hover:bg-gray-200 dark:hover:bg-gray-700"
+                : "bg-white dark:bg-gray-800 text-[#004080] dark:text-white cursor-not-allowed opacity-50"
             }`
           }
+          onClick={(e) => {
+            if (!isViewingOrder) {
+              e.preventDefault();
+            }
+          }}
         >
           View Order
         </NavLink>
       </div>
 
-      {error && (
-        <div className="mt-4 mx-4 sm:mx-6 p-2 bg-red-100 text-red-700 rounded-md max-w-md">
-          {error}
-        </div>
-      )}
-
+      {/* Render Nested Routes */}
       <div className="px-4 sm:px-6 py-4">
         <Outlet />
       </div>
