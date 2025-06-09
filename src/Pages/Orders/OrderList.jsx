@@ -125,7 +125,7 @@ const OrderList = () => {
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`/orders/view/${order._id}`);
+                    navigate(`admin/orders/view/${order._id}`);
                   }}
                   className="text-sm px-2 py-1"
                 >
