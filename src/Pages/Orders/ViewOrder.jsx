@@ -104,30 +104,37 @@ const EditOrder = () => {
   };
 
   if (loading)
-    return <p className="text-center mt-6 text-gray-700">Loading order...</p>;
+    return (
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
+        Loading order...
+      </p>
+    );
   if (error) return <p className="text-center mt-6 text-red-600">{error}</p>;
 
   return (
-    <div className="max-w-7xl mx-auto p-4">
-      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
+    <div className="max-w-full mx-auto p-2">
+      <h2 className="text-sm uppercase font-bold mb-6 text-start text-gray-800 dark:text-white">
         Edit Order #{order.orderId}
       </h2>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Left: Edit Form */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        {/* Left Side - Form */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white p-6 shadow rounded space-y-6"
+          className="bg-white dark:bg-gray-900 p-6 shadow rounded space-y-6"
         >
-          <h3 className="text-xl font-semibold mb-4">Edit Order</h3>
+          <h3 className="text-sm uppercase  font-semibold mb-4 dark:text-white">
+            Edit Order
+          </h3>
 
-          {/* Status */}
           <div>
-            <label className="block mb-1 font-medium">Status</label>
+            <label className="block mb-1 font-medium dark:text-gray-200">
+              Status
+            </label>
             <select
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white"
               required
             >
               <option value="">Select Status</option>
@@ -149,13 +156,14 @@ const EditOrder = () => {
             </button>
           </div>
 
-          {/* Payment Method */}
           <div>
-            <label className="block mb-1 font-medium">Payment Method</label>
+            <label className="block mb-1 font-medium dark:text-gray-200">
+              Payment Method
+            </label>
             <select
               value={paymentMethod}
               onChange={(e) => setPaymentMethod(e.target.value)}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white"
               required
             >
               <option value="">Select Payment Method</option>
@@ -164,19 +172,22 @@ const EditOrder = () => {
             </select>
           </div>
 
-          {/* Delivery Address */}
           <fieldset className="border p-4 rounded">
-            <legend className="font-medium">Delivery Address</legend>
+            <legend className="font-medium dark:text-gray-200">
+              Delivery Address
+            </legend>
             {["street", "city", "state", "postalCode", "country"].map(
               (field) => (
                 <div className="mb-3" key={field}>
-                  <label className="block text-sm capitalize">{field}</label>
+                  <label className="block text-sm capitalize dark:text-gray-300">
+                    {field}
+                  </label>
                   <input
                     type="text"
                     name={field}
                     value={deliveryAddress[field]}
                     onChange={handleInputChange}
-                    className="w-full p-2 border rounded"
+                    className="w-full p-2 border rounded dark:bg-gray-800 dark:text-white"
                     required
                   />
                 </div>
@@ -193,30 +204,32 @@ const EditOrder = () => {
           </button>
         </form>
 
-        {/* Right: Order Summary & Items */}
-        <div className="bg-white p-6 shadow rounded space-y-6">
+        {/* Right Side - Order Info */}
+        <div className="bg-white dark:bg-gray-900 shadow rounded p-4 space-y-6">
           <div>
-            <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
-            <p>
+            <h3 className="text-xl font-semibold mb-4 dark:text-white">
+              Order Summary
+            </h3>
+            <p className="dark:text-gray-200">
               <strong>User ID:</strong> {order.userId}
             </p>
-            <p>
+            <p className="dark:text-gray-200">
               <strong>Order ID:</strong> {order.orderId}
             </p>
-            <p>
+            <p className="dark:text-gray-200">
               <strong>Status:</strong> {order.status}
             </p>
-            <p>
+            <p className="dark:text-gray-200">
               <strong>Payment Method:</strong> {order.paymentMethod}
             </p>
-            <p>
+            <p className="dark:text-gray-200">
               <strong>Subtotal:</strong> ₹{order.subtotal}
             </p>
-            <p>
+            <p className="dark:text-gray-200">
               <strong>Total Amount:</strong> ₹{order.totalAmount}
             </p>
             {order.coupon && (
-              <p>
+              <p className="dark:text-gray-200">
                 <strong>Coupon:</strong> {order.coupon.code} (
                 {order.coupon.discountPercentage}%)
               </p>
@@ -224,22 +237,30 @@ const EditOrder = () => {
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-4">Ordered Products</h3>
-            <div className="space-y-4">
+            <h3 className="text-xl font-semibold mb-4 dark:text-white">
+              Ordered Products
+            </h3>
+            <div className="space-y-3">
               {order.items.map((item) => (
                 <div
                   key={item._id}
-                  className="flex items-center gap-4 border p-3 rounded shadow-sm"
+                  className="flex items-center gap-3 border p-2 rounded shadow-sm dark:border-gray-700"
                 >
                   <img
                     src={item.images?.[0]?.url}
                     alt={item.name}
-                    className="w-24 h-24 object-cover rounded"
+                    className="w-20 h-20 object-cover rounded"
                   />
                   <div className="flex-1">
-                    <h4 className="font-bold text-lg">{item.name}</h4>
-                    <p className="text-sm text-gray-600">{item.description}</p>
-                    <p className="mt-1 font-semibold">₹{item.price}</p>
+                    <h4 className="font-bold text-lg dark:text-white">
+                      {item.name}
+                    </h4>
+                    <p className="text-sm text-gray-600 dark:text-gray-400">
+                      {item.description}
+                    </p>
+                    <p className="mt-1 font-semibold text-gray-800 dark:text-white">
+                      ₹{item.price}
+                    </p>
                   </div>
                 </div>
               ))}
