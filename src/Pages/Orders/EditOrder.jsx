@@ -1,6 +1,9 @@
+// src/pages/Admin/EditOrder.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+
+const BASE_URL = "https://craft-cart-backend.vercel.app";
 
 const EditOrder = () => {
   const { id } = useParams(); // order _id
@@ -22,26 +25,31 @@ const EditOrder = () => {
     country: "",
   });
 
-  // Fetch order by id
   useEffect(() => {
     async function fetchOrder() {
+      setLoading(true);
+      setError("");
       try {
-        const res = await axios.get(`/api/order/${id}`);
-        const ord = res.data.order;
-        setOrder(ord);
-
-        // Set form values
-        setStatus(ord.status || "");
-        setPaymentMethod(ord.paymentMethod || "");
-        setDeliveryAddress({
-          street: ord.deliveryAddress?.street || "",
-          city: ord.deliveryAddress?.city || "",
-          state: ord.deliveryAddress?.state || "",
-          postalCode: ord.deliveryAddress?.postalCode || "",
-          country: ord.deliveryAddress?.country || "",
-        });
+        const res = await axios.get(`${BASE_URL}/api/order/${id}`);
+        if (res.data.success && res.data.order) {
+          const ord = res.data.order;
+          setOrder(ord);
+          setStatus(ord.status || "");
+          setPaymentMethod(ord.paymentMethod || "");
+          setDeliveryAddress({
+            street: ord.deliveryAddress?.street || "",
+            city: ord.deliveryAddress?.city || "",
+            state: ord.deliveryAddress?.state || "",
+            postalCode: ord.deliveryAddress?.postalCode || "",
+            country: ord.deliveryAddress?.country || "",
+          });
+        } else {
+          setError("Order not found.");
+          setOrder(null);
+        }
       } catch (err) {
         setError("Failed to load order data.");
+        setOrder(null);
       } finally {
         setLoading(false);
       }
@@ -66,10 +74,10 @@ const EditOrder = () => {
         deliveryAddress,
       };
 
-      const res = await axios.put(`/api/order/${id}`, updatedOrder);
+      const res = await axios.put(`${BASE_URL}/api/order/${id}`, updatedOrder);
       if (res.data.success) {
         alert("Order updated successfully!");
-        navigate(`/orders/view/${id}`); // Redirect to view page after update
+        navigate(`/orders/view/${id}`);
       } else {
         setError(res.data.message || "Failed to update order.");
       }
@@ -80,24 +88,41 @@ const EditOrder = () => {
     }
   };
 
-  if (loading) return <p>Loading order data...</p>;
-  if (error) return <p className="text-red-600">{error}</p>;
-  if (!order) return <p>Order not found.</p>;
+  if (loading)
+    return (
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
+        Loading order data...
+      </p>
+    );
+
+  if (error)
+    return (
+      <p className="text-center mt-6 text-red-600 font-semibold">{error}</p>
+    );
+
+  if (!order)
+    return (
+      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
+        Order not found.
+      </p>
+    );
 
   return (
-    <div>
-      <h2 className="text-xl font-semibold mb-4">
+    <div className="max-w-lg mx-auto p-4 bg-white dark:bg-gray-800 rounded-md shadow-md">
+      <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
         Edit Order #{order.orderId}
       </h2>
 
-      <form onSubmit={handleSubmit} className="max-w-lg space-y-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
         {/* Status */}
         <div>
-          <label className="block font-medium mb-1">Status</label>
+          <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+            Status
+          </label>
           <select
             value={status}
             onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             required
           >
             <option value="">Select Status</option>
@@ -111,11 +136,13 @@ const EditOrder = () => {
 
         {/* Payment Method */}
         <div>
-          <label className="block font-medium mb-1">Payment Method</label>
+          <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
+            Payment Method
+          </label>
           <select
             value={paymentMethod}
             onChange={(e) => setPaymentMethod(e.target.value)}
-            className="w-full p-2 border rounded"
+            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
             required
           >
             <option value="">Select Payment Method</option>
@@ -125,60 +152,77 @@ const EditOrder = () => {
         </div>
 
         {/* Delivery Address */}
-        <fieldset className="border p-4 rounded">
-          <legend className="font-medium mb-2">Delivery Address</legend>
-          <div className="mb-2">
-            <label className="block mb-1">Street</label>
+        <fieldset className="border border-gray-300 dark:border-gray-600 p-4 rounded">
+          <legend className="font-medium mb-4 text-gray-700 dark:text-gray-300">
+            Delivery Address
+          </legend>
+
+          <div className="mb-4">
+            <label className="block mb-1 text-gray-700 dark:text-gray-300">
+              Street
+            </label>
             <input
               type="text"
               name="street"
               value={deliveryAddress.street}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               required
             />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">City</label>
+
+          <div className="mb-4">
+            <label className="block mb-1 text-gray-700 dark:text-gray-300">
+              City
+            </label>
             <input
               type="text"
               name="city"
               value={deliveryAddress.city}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               required
             />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">State</label>
+
+          <div className="mb-4">
+            <label className="block mb-1 text-gray-700 dark:text-gray-300">
+              State
+            </label>
             <input
               type="text"
               name="state"
               value={deliveryAddress.state}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               required
             />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Postal Code</label>
+
+          <div className="mb-4">
+            <label className="block mb-1 text-gray-700 dark:text-gray-300">
+              Postal Code
+            </label>
             <input
               type="text"
               name="postalCode"
               value={deliveryAddress.postalCode}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               required
             />
           </div>
-          <div className="mb-2">
-            <label className="block mb-1">Country</label>
+
+          <div className="mb-4">
+            <label className="block mb-1 text-gray-700 dark:text-gray-300">
+              Country
+            </label>
             <input
               type="text"
               name="country"
               value={deliveryAddress.country}
               onChange={handleInputChange}
-              className="w-full p-2 border rounded"
+              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
               required
             />
           </div>
@@ -188,7 +232,7 @@ const EditOrder = () => {
         <button
           type="submit"
           disabled={saving}
-          className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50 transition"
         >
           {saving ? "Saving..." : "Update Order"}
         </button>
