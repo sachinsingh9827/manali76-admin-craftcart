@@ -3,7 +3,7 @@ import { NavLink, Outlet, useParams, useLocation } from "react-router-dom";
 import AdminPageNavbar from "../../components/Navbar/AdminPageNavbar";
 
 const Orders = () => {
-  const { id } = useParams();
+  const { id } = useParams(); // order id from URL params
   const location = useLocation();
   const [error, setError] = useState("");
 
@@ -49,7 +49,6 @@ const Orders = () => {
           View Order
         </NavLink>
 
-        {/* Add Edit tab if you want */}
         <NavLink
           to={id ? `/orders/edit/${id}` : "/orders"}
           onClick={handleViewOrderClick}
@@ -71,7 +70,7 @@ const Orders = () => {
         </div>
       )}
 
-      {/* Outlet for nested routes */}
+      {/* Nested routes render here */}
       <div className="px-4 sm:px-6 py-4">
         <Outlet />
       </div>
