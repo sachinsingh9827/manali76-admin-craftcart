@@ -30,7 +30,7 @@ const EditOrder = () => {
       setLoading(true);
       setError("");
       try {
-        const res = await axios.get(`${BASE_URL}/api/order/${id}`);
+        const res = await axios.get(`${BASE_URL}/api/orders/${id}`);
         if (res.data.success && res.data.order) {
           const ord = res.data.order;
           setOrder(ord);
