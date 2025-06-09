@@ -94,7 +94,7 @@ const EditOrder = () => {
     setStatusSaving(true);
     setStatusError("");
     try {
-      const res = await axios.put(`${BASE_URL}/api/order/status/${id}`, {
+      const res = await axios.put(`${BASE_URL}/api/orders/${id}/status`, {
         status,
       });
       if (res.data.status === "success") {
