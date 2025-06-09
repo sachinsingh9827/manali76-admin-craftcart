@@ -1,4 +1,3 @@
-// src/pages/Admin/EditOrder.jsx
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -12,7 +11,9 @@ const EditOrder = () => {
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [statusSaving, setStatusSaving] = useState(false); // for status update only
   const [error, setError] = useState("");
+  const [statusError, setStatusError] = useState("");
 
   // Form state fields
   const [status, setStatus] = useState("");
@@ -62,11 +63,11 @@ const EditOrder = () => {
     setDeliveryAddress((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle full order update (status + payment + address)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
     setError("");
-
     try {
       const updatedOrder = {
         status,
@@ -85,6 +86,28 @@ const EditOrder = () => {
       setError(err.response?.data?.message || "Update failed.");
     } finally {
       setSaving(false);
+    }
+  };
+
+  // Handle **status only** update with separate API call
+  const handleStatusUpdate = async () => {
+    setStatusSaving(true);
+    setStatusError("");
+    try {
+      const res = await axios.put(`${BASE_URL}/api/order/status/${id}`, {
+        status,
+      });
+      if (res.data.status === "success") {
+        alert("Order status updated successfully!");
+        // Optionally update the local order state
+        setOrder((prev) => ({ ...prev, status }));
+      } else {
+        setStatusError(res.data.message || "Failed to update status.");
+      }
+    } catch (err) {
+      setStatusError(err.response?.data?.message || "Status update failed.");
+    } finally {
+      setStatusSaving(false);
     }
   };
 
@@ -127,11 +150,21 @@ const EditOrder = () => {
           >
             <option value="">Select Status</option>
             <option value="pending">Pending</option>
+            <option value="confirmed">Confirmed</option>
             <option value="processing">Processing</option>
             <option value="shipped">Shipped</option>
             <option value="delivered">Delivered</option>
             <option value="cancelled">Cancelled</option>
           </select>
+          {statusError && <p className="text-red-600 mt-1">{statusError}</p>}
+          <button
+            type="button"
+            onClick={handleStatusUpdate}
+            disabled={statusSaving}
+            className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 disabled:opacity-50 transition"
+          >
+            {statusSaving ? "Updating Status..." : "Update Status Only"}
+          </button>
         </div>
 
         {/* Payment Method */}
@@ -228,7 +261,7 @@ const EditOrder = () => {
           </div>
         </fieldset>
 
-        {/* Submit */}
+        {/* Submit full order update */}
         <button
           type="submit"
           disabled={saving}
