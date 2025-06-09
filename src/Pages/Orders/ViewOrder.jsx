@@ -5,17 +5,16 @@ import axios from "axios";
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
 const EditOrder = () => {
-  const { id } = useParams(); // order _id
+  const { id } = useParams();
   const navigate = useNavigate();
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [statusSaving, setStatusSaving] = useState(false); // for status update only
+  const [statusSaving, setStatusSaving] = useState(false);
   const [error, setError] = useState("");
   const [statusError, setStatusError] = useState("");
 
-  // Form state fields
   const [status, setStatus] = useState("");
   const [paymentMethod, setPaymentMethod] = useState("");
   const [deliveryAddress, setDeliveryAddress] = useState({
@@ -28,8 +27,6 @@ const EditOrder = () => {
 
   useEffect(() => {
     async function fetchOrder() {
-      setLoading(true);
-      setError("");
       try {
         const res = await axios.get(`${BASE_URL}/api/orders/${id}`);
         if (res.data.success && res.data.order) {
@@ -46,11 +43,9 @@ const EditOrder = () => {
           });
         } else {
           setError("Order not found.");
-          setOrder(null);
         }
       } catch (err) {
         setError("Failed to load order data.");
-        setOrder(null);
       } finally {
         setLoading(false);
       }
@@ -63,7 +58,6 @@ const EditOrder = () => {
     setDeliveryAddress((prev) => ({ ...prev, [name]: value }));
   };
 
-  // Handle full order update (status + payment + address)
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -74,7 +68,6 @@ const EditOrder = () => {
         paymentMethod,
         deliveryAddress,
       };
-
       const res = await axios.put(`${BASE_URL}/api/order/${id}`, updatedOrder);
       if (res.data.success) {
         alert("Order updated successfully!");
@@ -89,7 +82,6 @@ const EditOrder = () => {
     }
   };
 
-  // Handle **status only** update with separate API call
   const handleStatusUpdate = async () => {
     setStatusSaving(true);
     setStatusError("");
@@ -100,7 +92,6 @@ const EditOrder = () => {
 
       if (res.data.status === "success") {
         alert("Order status updated successfully!");
-        // Update local order state with the new status from response
         setOrder((prev) => ({ ...prev, status: res.data.order.status }));
       } else {
         setStatusError(res.data.message || "Failed to update status.");
@@ -113,164 +104,149 @@ const EditOrder = () => {
   };
 
   if (loading)
-    return (
-      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
-        Loading order data...
-      </p>
-    );
-
-  if (error)
-    return (
-      <p className="text-center mt-6 text-red-600 font-semibold">{error}</p>
-    );
-
-  if (!order)
-    return (
-      <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
-        Order not found.
-      </p>
-    );
+    return <p className="text-center mt-6 text-gray-700">Loading order...</p>;
+  if (error) return <p className="text-center mt-6 text-red-600">{error}</p>;
 
   return (
-    <div className="max-w-lg mx-auto p-4 bg-white dark:bg-gray-800 rounded-md shadow-md">
-      <h2 className="text-2xl font-semibold mb-6 text-gray-900 dark:text-gray-100">
+    <div className="max-w-7xl mx-auto p-4">
+      <h2 className="text-3xl font-bold mb-6 text-center text-gray-800">
         Edit Order #{order.orderId}
       </h2>
 
-      <form onSubmit={handleSubmit} className="space-y-6">
-        {/* Status */}
-        <div>
-          <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-            Status
-          </label>
-          <select
-            value={status}
-            onChange={(e) => setStatus(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-            required
-          >
-            <option value="">Select Status</option>
-            <option value="pending">Pending</option>
-            <option value="confirmed">Confirmed</option>
-            <option value="processing">Processing</option>
-            <option value="shipped">Shipped</option>
-            <option value="delivered">Delivered</option>
-            <option value="cancelled">Cancelled</option>
-          </select>
-          {statusError && <p className="text-red-600 mt-1">{statusError}</p>}
-          <button
-            type="button"
-            onClick={handleStatusUpdate}
-            disabled={statusSaving}
-            className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 disabled:opacity-50 transition"
-          >
-            {statusSaving ? "Updating Status..." : "Update Status Only"}
-          </button>
-        </div>
-
-        {/* Payment Method */}
-        <div>
-          <label className="block font-medium mb-2 text-gray-700 dark:text-gray-300">
-            Payment Method
-          </label>
-          <select
-            value={paymentMethod}
-            onChange={(e) => setPaymentMethod(e.target.value)}
-            className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-            required
-          >
-            <option value="">Select Payment Method</option>
-            <option value="cod">Cash on Delivery</option>
-            <option value="online">Online Payment</option>
-          </select>
-        </div>
-
-        {/* Delivery Address */}
-        <fieldset className="border border-gray-300 dark:border-gray-600 p-4 rounded">
-          <legend className="font-medium mb-4 text-gray-700 dark:text-gray-300">
-            Delivery Address
-          </legend>
-
-          <div className="mb-4">
-            <label className="block mb-1 text-gray-700 dark:text-gray-300">
-              Street
-            </label>
-            <input
-              type="text"
-              name="street"
-              value={deliveryAddress.street}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block mb-1 text-gray-700 dark:text-gray-300">
-              City
-            </label>
-            <input
-              type="text"
-              name="city"
-              value={deliveryAddress.city}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block mb-1 text-gray-700 dark:text-gray-300">
-              State
-            </label>
-            <input
-              type="text"
-              name="state"
-              value={deliveryAddress.state}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block mb-1 text-gray-700 dark:text-gray-300">
-              Postal Code
-            </label>
-            <input
-              type="text"
-              name="postalCode"
-              value={deliveryAddress.postalCode}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-              required
-            />
-          </div>
-
-          <div className="mb-4">
-            <label className="block mb-1 text-gray-700 dark:text-gray-300">
-              Country
-            </label>
-            <input
-              type="text"
-              name="country"
-              value={deliveryAddress.country}
-              onChange={handleInputChange}
-              className="w-full p-2 border rounded dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600"
-              required
-            />
-          </div>
-        </fieldset>
-
-        {/* Submit full order update */}
-        <button
-          type="submit"
-          disabled={saving}
-          className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50 transition"
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Left: Edit Form */}
+        <form
+          onSubmit={handleSubmit}
+          className="bg-white p-6 shadow rounded space-y-6"
         >
-          {saving ? "Saving..." : "Update Order"}
-        </button>
-      </form>
+          <h3 className="text-xl font-semibold mb-4">Edit Order</h3>
+
+          {/* Status */}
+          <div>
+            <label className="block mb-1 font-medium">Status</label>
+            <select
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full p-2 border rounded"
+              required
+            >
+              <option value="">Select Status</option>
+              <option value="pending">Pending</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="processing">Processing</option>
+              <option value="shipped">Shipped</option>
+              <option value="delivered">Delivered</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            {statusError && <p className="text-red-600 mt-1">{statusError}</p>}
+            <button
+              type="button"
+              onClick={handleStatusUpdate}
+              disabled={statusSaving}
+              className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 disabled:opacity-50"
+            >
+              {statusSaving ? "Updating Status..." : "Update Status Only"}
+            </button>
+          </div>
+
+          {/* Payment Method */}
+          <div>
+            <label className="block mb-1 font-medium">Payment Method</label>
+            <select
+              value={paymentMethod}
+              onChange={(e) => setPaymentMethod(e.target.value)}
+              className="w-full p-2 border rounded"
+              required
+            >
+              <option value="">Select Payment Method</option>
+              <option value="cod">Cash on Delivery</option>
+              <option value="online">Online Payment</option>
+            </select>
+          </div>
+
+          {/* Delivery Address */}
+          <fieldset className="border p-4 rounded">
+            <legend className="font-medium">Delivery Address</legend>
+            {["street", "city", "state", "postalCode", "country"].map(
+              (field) => (
+                <div className="mb-3" key={field}>
+                  <label className="block text-sm capitalize">{field}</label>
+                  <input
+                    type="text"
+                    name={field}
+                    value={deliveryAddress[field]}
+                    onChange={handleInputChange}
+                    className="w-full p-2 border rounded"
+                    required
+                  />
+                </div>
+              )
+            )}
+          </fieldset>
+
+          <button
+            type="submit"
+            disabled={saving}
+            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
+          >
+            {saving ? "Saving..." : "Update Order"}
+          </button>
+        </form>
+
+        {/* Right: Order Summary & Items */}
+        <div className="bg-white p-6 shadow rounded space-y-6">
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Order Summary</h3>
+            <p>
+              <strong>User ID:</strong> {order.userId}
+            </p>
+            <p>
+              <strong>Order ID:</strong> {order.orderId}
+            </p>
+            <p>
+              <strong>Status:</strong> {order.status}
+            </p>
+            <p>
+              <strong>Payment Method:</strong> {order.paymentMethod}
+            </p>
+            <p>
+              <strong>Subtotal:</strong> ₹{order.subtotal}
+            </p>
+            <p>
+              <strong>Total Amount:</strong> ₹{order.totalAmount}
+            </p>
+            {order.coupon && (
+              <p>
+                <strong>Coupon:</strong> {order.coupon.code} (
+                {order.coupon.discountPercentage}%)
+              </p>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-xl font-semibold mb-4">Ordered Products</h3>
+            <div className="space-y-4">
+              {order.items.map((item) => (
+                <div
+                  key={item._id}
+                  className="flex items-center gap-4 border p-3 rounded shadow-sm"
+                >
+                  <img
+                    src={item.images?.[0]?.url}
+                    alt={item.name}
+                    className="w-24 h-24 object-cover rounded"
+                  />
+                  <div className="flex-1">
+                    <h4 className="font-bold text-lg">{item.name}</h4>
+                    <p className="text-sm text-gray-600">{item.description}</p>
+                    <p className="mt-1 font-semibold">₹{item.price}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
