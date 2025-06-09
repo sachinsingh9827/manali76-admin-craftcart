@@ -135,7 +135,7 @@ const OrderList = () => {
             },
           ]}
           data={filteredOrders}
-          onRowClick={(order) => navigate(`/orders/view/${order._id}`)}
+          onRowClick={(order) => navigate(`admin/orders/view/${order._id}`)}
         />
       )}
 
