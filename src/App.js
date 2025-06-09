@@ -48,9 +48,8 @@ import ProductVideos from "./Pages/Video/Video";
 import VideoList from "./Pages/Video/VideoList";
 import UploadVideoForm from "./Pages/Video/UploadVideoForm";
 import Orders from "./Pages/Orders/Order";
-import EditOrder from "./Pages/Orders/ViewOrder";
 import OrderList from "./Pages/Orders/OrderList";
-import ViewOrder from "./Pages/Orders/OrderList";
+import EditOrder from "./Pages/Orders/ViewOrder";
 
 function App() {
   useThemeEffect();
@@ -100,7 +99,7 @@ function App() {
           </Route>
           <Route path="orders" element={<Orders />}>
             <Route index element={<OrderList />} />
-            <Route path="view/:id" element={<ViewOrder />} />
+            <Route path="edit/:id" element={<EditOrder />} />
           </Route>
 
           <Route path="products" element={<Products />}>
