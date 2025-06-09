@@ -4,7 +4,7 @@ import AdminPageNavbar from "../../components/Navbar/AdminPageNavbar";
 
 const Orders = () => {
   const location = useLocation();
-  const isViewingOrder = location.pathname.includes("/admin/orders/view");
+  const isViewingOrder = location.pathname.includes("/admin/orders/view/:id");
 
   return (
     <div className="min-h-screen bg-gray-100 dark:bg-gray-900 text-gray-900 dark:text-white font-montserrat">
