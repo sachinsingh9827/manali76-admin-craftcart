@@ -1,4 +1,3 @@
-// src/pages/Admin/OrderList.jsx
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
@@ -125,7 +124,7 @@ const OrderList = () => {
                 <Button
                   onClick={(e) => {
                     e.stopPropagation();
-                    navigate(`admin/orders/view/${order._id}`); // changed path here
+                    navigate(`/orders/view/${order._id}`); // Corrected path here
                   }}
                   className="text-sm px-2 py-1"
                 >
@@ -135,7 +134,7 @@ const OrderList = () => {
             },
           ]}
           data={filteredOrders}
-          onRowClick={(order) => navigate(`admin/orders/view/${order._id}`)}
+          onRowClick={(order) => navigate(`/orders/view/${order._id}`)} // Corrected path here
         />
       )}
 
