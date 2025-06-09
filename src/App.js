@@ -48,6 +48,8 @@ import BannerForm from "./Pages/Banner/BannerForm";
 import ProductVideos from "./Pages/Video/Video";
 import VideoList from "./Pages/Video/VideoList";
 import UploadVideoForm from "./Pages/Video/UploadVideoForm";
+import OrderList from "./Pages/Orders/OrderList";
+import ViewOrder from "./Pages/Orders/ViewOrder";
 
 function App() {
   useThemeEffect();
@@ -96,6 +98,12 @@ function App() {
             <Route path="edit/:id" element={<EditUser />} />
             <Route path="orders" element={<Orders />} />
           </Route>
+          <Route path="orders" element={<OrderList />}>
+            <Route index element={<OrderList />} />
+            <Route path="view/:id" element={<ViewOrder />} />
+            <Route path="edit/:id" element={<EditOrder />} />
+          </Route>
+
           <Route path="products" element={<Products />}>
             <Route index element={<ProductList />} />
             <Route path="new" element={<ProductForm />} />

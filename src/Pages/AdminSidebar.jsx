@@ -53,6 +53,7 @@ const AdminSidebar = ({ sidebarOpen, closeSidebar }) => {
             { name: "Dashboard", path: "/admin/dashboard" },
             { name: "Products", path: "/admin/products" },
             { name: "Users", path: "/admin/users" },
+            { name: "Settings", path: "/admin/settings" },
             { name: "Templates", path: "/admin/templates" },
             { name: "Banners", path: "/admin/banners" },
             { name: "Coupons", path: "/admin/coupon" },
