@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
+import Button from "../../components/Reusable/Button";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -146,14 +147,13 @@ const EditOrder = () => {
               <option value="cancelled">Cancelled</option>
             </select>
             {statusError && <p className="text-red-600 mt-1">{statusError}</p>}
-            <button
+            <Button
               type="button"
               onClick={handleStatusUpdate}
               disabled={statusSaving}
-              className="mt-2 bg-green-600 text-white py-1 px-3 rounded hover:bg-green-700 disabled:opacity-50"
             >
               {statusSaving ? "Updating Status..." : "Update Status Only"}
-            </button>
+            </Button>
           </div>
 
           <div>
@@ -195,13 +195,9 @@ const EditOrder = () => {
             )}
           </fieldset>
 
-          <button
-            type="submit"
-            disabled={saving}
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 disabled:opacity-50"
-          >
+          <Button type="submit" disabled={saving}>
             {saving ? "Saving..." : "Update Order"}
-          </button>
+          </Button>
         </form>
 
         {/* Right Side - Order Info */}
