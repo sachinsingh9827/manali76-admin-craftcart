@@ -111,18 +111,6 @@ const TemplateForm = () => {
         {id ? "Edit Template" : "Create Template"}
       </h2>
       <div className="p-6 max-w-full mx-auto bg-white dark:bg-gray-800 shadow-md rounded-md">
-        {message && (
-          <div
-            className={`mb-4 p-2 rounded ${
-              message.type === "success"
-                ? "bg-green-200 text-green-800"
-                : "bg-red-200 text-red-800"
-            }`}
-          >
-            {message.text}
-          </div>
-        )}
-
         <form onSubmit={handleSubmit} className="space-y-4">
           <input
             type="text"

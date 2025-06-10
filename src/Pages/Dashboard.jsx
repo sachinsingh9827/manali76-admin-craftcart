@@ -12,6 +12,7 @@ import {
   Legend,
   ResponsiveContainer,
 } from "recharts";
+import LoadingPage from "../components/Navbar/LoadingPage";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
@@ -45,7 +46,7 @@ const Dashboard = () => {
   if (loading) {
     return (
       <div className="p-6 text-center text-gray-700 dark:text-gray-200 min-h-screen flex items-center justify-center">
-        Loading...
+        <LoadingPage />
       </div>
     );
   }
@@ -71,39 +72,68 @@ const Dashboard = () => {
     ? summary.dailyStats.orders
     : [{ date: "No Data", count: 0 }];
 
+  // Custom tooltip for consistent style
+  const CustomTooltip = ({ active, payload, label }) => {
+    if (active && payload?.length) {
+      return (
+        <div
+          className="rounded px-2 py-1 text-white text-xs"
+          style={{ backgroundColor: "#004080" }}
+        >
+          <p>{`${label}: ${payload[0].value}`}</p>
+        </div>
+      );
+    }
+    return null;
+  };
+
   return (
     <div className="mt-2 font-montserrat min-h-auto bg-gray-50 dark:bg-gray-900 text-gray-900 dark:text-gray-100">
       {/* Charts Section */}
-      <section className="grid grid-cols-1 md:grid-cols-10 gap-4 mb-10 w-full">
+      <section className="grid grid-cols-1 md:grid-cols-10 gap-4 mb-2 mt-2 w-full">
         {/* Totals Bar Chart */}
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow border border-gray-200 dark:border-gray-700 md:col-span-3">
-          <h3 className="text-xl font-semibold mb-4">Totals Overview</h3>
+        <div className="bg-white dark:bg-gray-800 p-1 rounded-lg shadow border border-gray-200 dark:border-gray-700 md:col-span-3">
+          <h3 className="text-sm uppercase font-semibold">Totals Overview</h3>
           <ResponsiveContainer width="100%" height={300}>
             <BarChart
               data={totalsData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              margin={{ top: 20, right: 30, bottom: 50 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="name" />
+              <XAxis
+                dataKey="name"
+                angle={-90}
+                textAnchor="end"
+                interval={0}
+                height={80}
+              />
               <YAxis allowDecimals={false} />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
-              <Bar dataKey="count" fill="#3182ce" />
+              <Bar dataKey="count" fill="#004080" barSize={20} />
             </BarChart>
           </ResponsiveContainer>
         </div>
 
         {/* Daily Users Line Chart */}
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow border border-gray-200 dark:border-gray-700 md:col-span-3">
-          <h3 className="text-xl font-semibold mb-4">
+        <div className="bg-white dark:bg-gray-800 p-1 rounded-lg shadow border border-gray-200 dark:border-gray-700 md:col-span-3">
+          <h3 className="text-sm uppercase font-semibold ">
             New Users (Last 7 Days)
           </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={userData}>
+            <LineChart
+              data={userData}
+              margin={{ top: 20, right: 30, bottom: 50 }}
+            >
               <CartesianGrid stroke="#ccc" />
-              <XAxis dataKey="date" />
+              <XAxis
+                dataKey="date"
+                textAnchor="middle"
+                interval={0}
+                height={60}
+              />
               <YAxis allowDecimals={false} />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line
                 type="monotone"
@@ -117,14 +147,24 @@ const Dashboard = () => {
         </div>
 
         {/* Orders Line Chart */}
-        <div className="bg-white dark:bg-gray-800 p-5 rounded-lg shadow border border-gray-200 dark:border-gray-700 md:col-span-4">
-          <h3 className="text-xl font-semibold mb-4">Orders (Last 7 Days)</h3>
+        <div className="bg-white dark:bg-gray-800 p-1 rounded-lg shadow border border-gray-200 dark:border-gray-700 md:col-span-3">
+          <h3 className="text-sm uppercase font-semibold ">
+            Orders (Last 7 Days)
+          </h3>
           <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={orderData}>
+            <LineChart
+              data={orderData}
+              margin={{ top: 20, right: 30, bottom: 50 }}
+            >
               <CartesianGrid stroke="#ccc" />
-              <XAxis dataKey="date" />
+              <XAxis
+                dataKey="date"
+                textAnchor="middle"
+                interval={0}
+                height={60}
+              />
               <YAxis allowDecimals={false} />
-              <Tooltip />
+              <Tooltip content={<CustomTooltip />} />
               <Legend />
               <Line
                 type="monotone"
@@ -140,24 +180,20 @@ const Dashboard = () => {
 
       {/* Top Selling Products */}
       <section>
-        <h3 className="text-xl font-semibold mb-6">Top Selling Products</h3>
+        <h3 className="text-sm uppercase font-semibold mb-2">
+          Top Selling Products
+        </h3>
         {summary.topSellingProducts.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-6 gap-2">
             {summary.topSellingProducts.map((product) => (
               <div
                 key={product.productId}
                 className="bg-white dark:bg-gray-800 p-4 rounded-lg shadow border border-gray-200 dark:border-gray-700 flex flex-col"
               >
-                <img
-                  src={product.image}
-                  alt={product.name}
-                  className="w-full h-36 object-cover rounded mb-4"
-                />
                 <h4 className="text-lg font-bold mb-1">{product.name}</h4>
-                <p className="text-sm mb-1">ID: {product.productId}</p>
                 <p className="text-sm mb-2">Price: ₹{product.price}</p>
                 <p className="text-sm text-green-600 font-semibold mt-auto">
-                  Sold: {product.sales}
+                  Sold: {product.totalSold}
                 </p>
               </div>
             ))}
