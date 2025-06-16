@@ -125,23 +125,25 @@ const EditOrder = () => {
     } = order;
 
     return `Order from Craft-Cart
-Order ID: ${orderId}
-Customer: ${userId.name} (${userId.email})
-Item: ${items[0]?.name} - ₹${items[0]?.price}
-${
-  coupon
-    ? `Coupon: ${coupon.code} (${coupon.discountPercentage}% off, ₹${coupon.discountAmt} discount)`
-    : ""
-}
-Subtotal: ₹${subtotal}
-Total Amount: ₹${totalAmount}
-Payment Method: ${
-      paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment"
-    }
-Status: ${status}
-Delivery Address: ${deliveryAddress.street}, ${deliveryAddress.city}, ${
+  Order ID: ${orderId}
+  Customer: ${userId.name} (${userId.email})
+  Item: ${items[0]?.name} - ₹${items[0]?.price}
+  ${
+    coupon
+      ? `Coupon: ${coupon.code} (${coupon.discountPercentage}% off, ₹${coupon.discountAmt} discount)`
+      : ""
+  }
+  Subtotal: ₹${subtotal}
+  Total Amount: ₹${totalAmount}
+  Payment Method: ${
+    paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment"
+  }
+  Status: ${status}
+  Delivery Address: ${deliveryAddress.street}, ${deliveryAddress.city}, ${
       deliveryAddress.state
-    } - ${deliveryAddress.postalCode}, ${deliveryAddress.country}`;
+    } - ${deliveryAddress.postalCode}, ${deliveryAddress.country}
+  
+  Visit our website: https://craft-cart.vercel.app/`;
   };
 
   const handleDownloadQRCode = () => {
