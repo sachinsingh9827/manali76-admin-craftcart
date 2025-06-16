@@ -196,7 +196,7 @@ const EditOrder = () => {
         {/* Left Side - Form */}
         <form
           onSubmit={handleSubmit}
-          className="bg-white dark:bg-gray-900 p-6 shadow rounded space-y-6"
+          className="bg-white dark:bg-gray-900 p-6 shadow rounded space-y-6 dark:border dark:border-gray-700"
         >
           <h3 className="text-sm uppercase font-semibold mb-4 dark:text-white">
             Edit Order
@@ -276,7 +276,7 @@ const EditOrder = () => {
         </form>
 
         {/* Right Side - Invoice + QR */}
-        <div className="bg-white dark:bg-gray-900 shadow rounded p-4 space-y-6">
+        <div className="bg-white dark:bg-gray-900 shadow rounded p-4 space-y-6 dark:border dark:border-gray-700">
           <div>
             <h3 className="text-xl font-semibold mb-4 dark:text-white">
               Order Summary
