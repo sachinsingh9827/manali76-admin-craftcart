@@ -1,13 +1,17 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import axios from "axios";
 import Button from "../../components/Reusable/Button";
+import { QRCodeCanvas } from "qrcode.react";
+import html2canvas from "html2canvas";
+import jsPDF from "jspdf";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
 const EditOrder = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const qrRef = useRef(null);
 
   const [order, setOrder] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -25,6 +29,8 @@ const EditOrder = () => {
     postalCode: "",
     country: "",
   });
+
+  const [qrGenerated, setQrGenerated] = useState(false);
 
   useEffect(() => {
     async function fetchOrder() {
@@ -104,12 +110,78 @@ const EditOrder = () => {
     }
   };
 
+  const getOrderQRValue = () => {
+    if (!order) return "";
+    const {
+      orderId,
+      userId,
+      items,
+      subtotal,
+      totalAmount,
+      paymentMethod,
+      status,
+      deliveryAddress,
+      coupon,
+    } = order;
+
+    return `Order from Craft-Cart
+Order ID: ${orderId}
+Customer: ${userId.name} (${userId.email})
+Item: ${items[0]?.name} - ₹${items[0]?.price}
+${
+  coupon
+    ? `Coupon: ${coupon.code} (${coupon.discountPercentage}% off, ₹${coupon.discountAmt} discount)`
+    : ""
+}
+Subtotal: ₹${subtotal}
+Total Amount: ₹${totalAmount}
+Payment Method: ${
+      paymentMethod === "cod" ? "Cash on Delivery" : "Online Payment"
+    }
+Status: ${status}
+Delivery Address: ${deliveryAddress.street}, ${deliveryAddress.city}, ${
+      deliveryAddress.state
+    } - ${deliveryAddress.postalCode}, ${deliveryAddress.country}`;
+  };
+
+  const handleDownloadQRCode = () => {
+    const canvas = qrRef.current?.querySelector("canvas");
+    if (!canvas) return;
+    const image = canvas.toDataURL("image/png");
+    const link = document.createElement("a");
+    link.href = image;
+    link.download = `order-${order.orderId}-qr.png`;
+    link.click();
+  };
+
+  const handleDownloadInvoice = async () => {
+    const element = qrRef.current;
+    if (!element) return;
+
+    const canvas = await html2canvas(element);
+    const imgData = canvas.toDataURL("image/png");
+
+    const pdf = new jsPDF({
+      orientation: "portrait",
+      unit: "pt",
+      format: "a4",
+    });
+
+    const margin = 20;
+    const width = pdf.internal.pageSize.getWidth() - margin * 2;
+    const height = (canvas.height * width) / canvas.width;
+
+    pdf.addImage(imgData, "PNG", margin, margin, width, height);
+    pdf.save(`invoice-${order.orderId}.pdf`);
+  };
+
   if (loading)
     return (
       <p className="text-center mt-6 text-gray-700 dark:text-gray-300">
         Loading order...
       </p>
     );
+
   if (error) return <p className="text-center mt-6 text-red-600">{error}</p>;
 
   return (
@@ -124,7 +196,7 @@ const EditOrder = () => {
           onSubmit={handleSubmit}
           className="bg-white dark:bg-gray-900 p-6 shadow rounded space-y-6"
         >
-          <h3 className="text-sm uppercase  font-semibold mb-4 dark:text-white">
+          <h3 className="text-sm uppercase font-semibold mb-4 dark:text-white">
             Edit Order
           </h3>
 
@@ -151,7 +223,7 @@ const EditOrder = () => {
               type="button"
               onClick={handleStatusUpdate}
               disabled={statusSaving}
-              className="mt-2 "
+              className="mt-2"
             >
               {statusSaving ? "Updating Status..." : "Update Status Only"}
             </Button>
@@ -201,14 +273,14 @@ const EditOrder = () => {
           </Button>
         </form>
 
-        {/* Right Side - Order Info */}
+        {/* Right Side - Invoice + QR */}
         <div className="bg-white dark:bg-gray-900 shadow rounded p-4 space-y-6">
           <div>
             <h3 className="text-xl font-semibold mb-4 dark:text-white">
               Order Summary
             </h3>
             <p className="dark:text-gray-200">
-              <strong>User ID:</strong> {order.userId}
+              <strong>User:</strong> {order.userId.name} ({order.userId.email})
             </p>
             <p className="dark:text-gray-200">
               <strong>Order ID:</strong> {order.orderId}
@@ -217,7 +289,7 @@ const EditOrder = () => {
               <strong>Status:</strong> {order.status}
             </p>
             <p className="dark:text-gray-200">
-              <strong>Payment Method:</strong> {order.paymentMethod}
+              <strong>Payment:</strong> {order.paymentMethod}
             </p>
             <p className="dark:text-gray-200">
               <strong>Subtotal:</strong> ₹{order.subtotal}
@@ -228,40 +300,82 @@ const EditOrder = () => {
             {order.coupon && (
               <p className="dark:text-gray-200">
                 <strong>Coupon:</strong> {order.coupon.code} (
-                {order.coupon.discountPercentage}%)
+                {order.coupon.discountPercentage}% off - ₹
+                {order.coupon.discountAmt})
               </p>
             )}
           </div>
 
           <div>
-            <h3 className="text-xl font-semibold mb-4 dark:text-white">
-              Ordered Products
+            <h3 className="text-xl font-semibold mb-2 dark:text-white">
+              Invoice QR Code
             </h3>
-            <div className="space-y-3">
-              {order.items.map((item) => (
+
+            {!qrGenerated ? (
+              <Button onClick={() => setQrGenerated(true)}>
+                Generate Invoice
+              </Button>
+            ) : (
+              <>
                 <div
-                  key={item._id}
-                  className="flex items-center gap-3 border p-2 rounded shadow-sm dark:border-gray-700"
+                  ref={qrRef}
+                  className="space-y-3 bg-white p-4 rounded shadow dark:bg-gray-800"
                 >
-                  <img
-                    src={item.images?.[0]?.url}
-                    alt={item.name}
-                    className="w-20 h-20 object-cover rounded"
+                  <QRCodeCanvas
+                    value={getOrderQRValue()}
+                    size={180}
+                    includeMargin={true}
+                    bgColor="#ffffff"
+                    fgColor="#000000"
+                    level="M"
                   />
-                  <div className="flex-1">
-                    <h4 className="font-bold text-lg dark:text-white">
-                      {item.name}
-                    </h4>
-                    <p className="text-sm text-gray-600 dark:text-gray-400">
-                      {item.description}
+
+                  <div className="text-sm dark:text-white space-y-1">
+                    <p>
+                      <strong>Order ID:</strong> {order.orderId}
                     </p>
-                    <p className="mt-1 font-semibold text-gray-800 dark:text-white">
-                      ₹{item.price}
+                    <p>
+                      <strong>User:</strong> {order.userId.name} (
+                      {order.userId.email})
+                    </p>
+                    <p>
+                      <strong>Status:</strong> {order.status}
+                    </p>
+                    <p>
+                      <strong>Payment:</strong> {order.paymentMethod}
+                    </p>
+                    <p>
+                      <strong>Subtotal:</strong> ₹{order.subtotal}
+                    </p>
+                    <p>
+                      <strong>Total:</strong> ₹{order.totalAmount}
+                    </p>
+                    {order.coupon && (
+                      <p>
+                        <strong>Coupon:</strong> {order.coupon.code} (
+                        {order.coupon.discountPercentage}% off)
+                      </p>
+                    )}
+                    <p>
+                      <strong>Address:</strong> {order.deliveryAddress.street},{" "}
+                      {order.deliveryAddress.city},{" "}
+                      {order.deliveryAddress.state} -{" "}
+                      {order.deliveryAddress.postalCode},{" "}
+                      {order.deliveryAddress.country}
                     </p>
                   </div>
                 </div>
-              ))}
-            </div>
+
+                <div className="mt-4 space-x-2">
+                  <Button onClick={handleDownloadQRCode}>
+                    Download QR Code
+                  </Button>
+                  <Button onClick={handleDownloadInvoice}>
+                    Download Invoice
+                  </Button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       </div>
