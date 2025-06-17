@@ -28,6 +28,7 @@ const EditOrder = () => {
     postalCode: "",
     country: "",
   });
+  const [userContact, setUserContact] = useState("");
 
   useEffect(() => {
     async function fetchOrder() {
@@ -45,6 +46,7 @@ const EditOrder = () => {
             postalCode: ord.deliveryAddress?.postalCode || "",
             country: ord.deliveryAddress?.country || "",
           });
+          setUserContact(ord.userId?.addresses?.[0]?.contact || "");
         } else {
           setError("Order not found.");
         }
@@ -54,6 +56,7 @@ const EditOrder = () => {
         setLoading(false);
       }
     }
+
     if (id) fetchOrder();
   }, [id]);
 
@@ -119,6 +122,7 @@ const EditOrder = () => {
     return `Order from Craft-Cart
 Order ID: ${orderId}
 Customer: ${userId.name} (${userId.email})
+Contact: ${userContact}
 Item: ${items[0]?.name} - ₹${items[0]?.price}
 ${
   coupon
@@ -294,6 +298,9 @@ Visit our website: https://craft-cart.vercel.app/`;
             <p>
               <strong>Customer:</strong> {order.userId.name} (
               {order.userId.email})
+            </p>
+            <p>
+              <strong>Contact:</strong> {userContact}
             </p>
             <p>
               <strong>Status:</strong> {order.status}
