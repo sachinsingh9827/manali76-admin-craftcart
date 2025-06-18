@@ -23,7 +23,7 @@ const AdminSidebar = ({ sidebarOpen, closeSidebar }) => {
       >
         {/* Header */}
         <div className="flex items-center justify-between p-4 border-b border-gray-700 dark:border-yellow-400">
-          <h2 className="text-sm font-bold uppercase truncate max-w-[160px]">
+          <h2 className="text-sm italic font-bold uppercase truncate max-w-[160px]">
             Welcome {firstName && <span className="ml-2">{firstName}</span>}
           </h2>
           <button
