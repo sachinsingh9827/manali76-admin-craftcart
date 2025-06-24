@@ -56,7 +56,7 @@ const OrderList = () => {
   );
 
   return (
-    <div className="p-2 sm:p-4 bg-gray-50 dark:bg-gray-900 min-h-screen">
+    <div className="p-2 sm:p-4 bg-gray-50 dark:bg-gray-900 ">
       <h2 className="text-sm uppercase font-semibold mb-4 text-gray-900 dark:text-gray-100 text-center sm:text-left">
         Order List
       </h2>
