@@ -51,7 +51,7 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
         <Button
           onClick={handleScrollLeft}
           disabled={startIndex === 0}
-          className="w-6 h-6 rounded"
+          className="px-2 py-1.5 rounded sm:px-2 sm:py-2 sm:w-auto w-15 text-sm sm:text-base"
           bgColor="bg-gray-200"
           hoverBgColor="hover:bg-gray-300"
           textColor="text-gray-800"
@@ -99,7 +99,7 @@ const Pagination = ({ page, totalPages, onPageChange, loading }) => {
         <Button
           onClick={handleScrollRight}
           disabled={startIndex + maxVisiblePages >= totalPages}
-          className="w-8 h-8 rounded"
+          className="px-2 py-1.5 rounded sm:px-2 sm:py-2 sm:w-auto w-15 text-sm sm:text-base"
           bgColor="bg-gray-200"
           hoverBgColor="hover:bg-gray-300"
           textColor="text-gray-800"
