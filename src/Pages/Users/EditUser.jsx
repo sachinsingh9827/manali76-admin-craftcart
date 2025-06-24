@@ -235,25 +235,37 @@ const EditUser = () => {
         </h3>
 
         <p className="text-gray-700 dark:text-gray-300">
+          Name: <span className="font-medium">{user.name || "N/A"}</span>
+        </p>
+
+        <p className="text-gray-700 dark:text-gray-300">
+          Email: <span className="font-medium">{user.email || "N/A"}</span>
+        </p>
+
+        <p className="text-gray-700 dark:text-gray-300">
           City:{" "}
-          <span className="font-medium">{user.addresses?.city || "N/A"}</span>
+          <span className="font-medium">
+            {user.addresses?.[0]?.city || "N/A"}
+          </span>
         </p>
 
         <p className="text-gray-700 dark:text-gray-300">
           Country:{" "}
           <span className="font-medium">
-            {user.addresses?.country || "N/A"}
+            {user.addresses?.[0]?.country || "N/A"}
+          </span>
+        </p>
+
+        <p className="text-gray-700 dark:text-gray-300">
+          Contact:{" "}
+          <span className="font-medium">
+            {user.addresses?.[0]?.contact || "N/A"}
           </span>
         </p>
 
         <p className="text-gray-700 dark:text-gray-300">
           Role:{" "}
           <span className="font-medium capitalize">{user.role || "N/A"}</span>
-        </p>
-
-        <p className="text-gray-700 dark:text-gray-300">
-          Contact:{" "}
-          <span className="font-medium">{user.addresses.contact || "N/A"}</span>
         </p>
       </div>
 
