@@ -123,7 +123,16 @@ const EditOrder = () => {
 Order ID: ${orderId}
 Customer: ${userId.name} (${userId.email})
 Contact: ${userContact}
-Item: ${items[0]?.name} - ₹${items[0]?.price}
+Items:
+${items
+  .map(
+    (item, i) =>
+      `${i + 1}. ${item.name} - ₹${item.price} x ${item.quantity} = ₹${
+        item.price * item.quantity
+      }`
+  )
+  .join("\n")}
+
 ${
   coupon
     ? `Coupon: ${coupon.code} (${coupon.discountPercentage}% off, ₹${coupon.discountAmt} discount)`
@@ -311,6 +320,18 @@ Visit our website: https://craft-cart.vercel.app/`;
             <p>
               <strong>Subtotal:</strong> ₹{order.subtotal}
             </p>
+            <p>
+              <strong>Items:</strong>
+            </p>
+            <ul style={{ paddingLeft: "20px", marginTop: "5px" }}>
+              {order.items.map((item, index) => (
+                <li key={item._id}>
+                  {index + 1}. {item.name} - ₹{item.price} × {item.quantity} = ₹
+                  {item.price * item.quantity}
+                </li>
+              ))}
+            </ul>
+
             <p>
               <strong>Total Amount:</strong> ₹{order.totalAmount}
             </p>
