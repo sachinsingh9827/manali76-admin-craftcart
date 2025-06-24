@@ -50,6 +50,9 @@ import UploadVideoForm from "./Pages/Video/UploadVideoForm";
 import Orders from "./Pages/Orders/Order";
 import OrderList from "./Pages/Orders/OrderList";
 import EditOrder from "./Pages/Orders/ViewOrder";
+import Reviews from "./Pages/Reviews/Reviews";
+import ReviewList from "./Pages/Reviews/ReviewList";
+import EditReview from "./Pages/Reviews/EditReview";
 
 function App() {
   useThemeEffect();
@@ -129,6 +132,10 @@ function App() {
             <Route index element={<VideoList />} />
             <Route path="new" element={<UploadVideoForm />} />
             <Route path=":id" element={<UploadVideoForm />} />
+          </Route>
+          <Route path="reviews" element={<Reviews />}>
+            <Route index element={<ReviewList />} />
+            <Route path="edit/:id" element={<EditReview />} />
           </Route>
 
           <Route path="settings" element={<Settings />} />
