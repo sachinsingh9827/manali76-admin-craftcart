@@ -8,36 +8,31 @@ import NoDataFound from "../../components/Reusable/NoDataFound";
 
 const BASE_URL = "https://craft-cart-backend.vercel.app";
 
-// Reusable product card component for wishlist and cart items
-const ProductCard = ({ product, onDelete, type }) => {
-  return (
-    <div className="border rounded p-1 bg-white dark:bg-gray-700 shadow-md flex flex-col items-center space-y-1">
-      <img
-        src={product.images?.[0]?.url || ""}
-        alt={product.name}
-        className="w-20 h-20 object-cover rounded-full"
-      />
-      <h4 className="text-sm font-semibold text-gray-900 dark:text-white text-center">
-        {product.name}
-      </h4>
-      {/* <p className="text-xs text-gray-700 dark:text-gray-300 text-center line-clamp-2">
-        {product.description}
-      </p> */}
-      <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
-        ₹{product.price}
-      </p>
-      <Button onClick={() => onDelete(product._id)} className="mt-1 text-sm">
-        Remove from {type}
-      </Button>
-    </div>
-  );
-};
+const ProductCard = ({ product, onDelete, type }) => (
+  <div className="border rounded p-2 bg-white dark:bg-gray-700 shadow-md flex flex-col items-center space-y-2">
+    <img
+      src={product.images?.[0]?.url || ""}
+      alt={product.name}
+      className="w-20 h-20 object-cover rounded-full"
+    />
+    <h4 className="text-sm font-semibold text-center text-gray-900 dark:text-white">
+      {product.name}
+    </h4>
+    <p className="text-sm font-bold text-indigo-600 dark:text-indigo-400">
+      ₹{product.price}
+    </p>
+    <Button onClick={() => onDelete(product._id)} className="mt-1 text-sm">
+      Remove from {type}
+    </Button>
+  </div>
+);
 
 const EditUser = () => {
   const { id } = useParams();
   const navigate = useNavigate();
 
   const [user, setUser] = useState(null);
+  const [orders, setOrders] = useState([]);
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [isActive, setIsActive] = useState(true);
@@ -52,10 +47,8 @@ const EditUser = () => {
       setLoading(true);
       setError(null);
       try {
-        const response = await axios.get(
-          `${BASE_URL}/api/admin/auth/users/${id}`
-        );
-        const { user, messages } = response.data.data;
+        const res = await axios.get(`${BASE_URL}/api/admin/auth/users/${id}`);
+        const { user, messages, orders } = res.data.data;
 
         setUser(user);
         setName(user.name || "");
@@ -63,6 +56,7 @@ const EditUser = () => {
         setEmail(user.email || "");
         setIsActive(user.isActive ?? true);
         setMessages(messages || []);
+        setOrders(orders || []);
       } catch (err) {
         setError(err.response?.data?.message || "Failed to fetch user");
       } finally {
@@ -76,11 +70,7 @@ const EditUser = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await axios.put(`${BASE_URL}/api/users/${id}`, {
-        name,
-        email,
-        isActive,
-      });
+      await axios.put(`${BASE_URL}/api/users/${id}`, { name, email, isActive });
       alert("User updated successfully!");
       navigate("/admin/users");
     } catch (err) {
@@ -102,6 +92,39 @@ const EditUser = () => {
     }
   };
 
+  const handleDeleteFromWishlist = async (productId) => {
+    try {
+      await axios.post(
+        `${BASE_URL}/api/user/auth/wishlist/remove`,
+        { productId },
+        {
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      setUser((prev) => ({
+        ...prev,
+        wishlist: prev.wishlist.filter((item) => item._id !== productId),
+      }));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to remove from wishlist");
+    }
+  };
+
+  const handleDeleteFromCart = async (productId) => {
+    try {
+      await axios.delete(`${BASE_URL}/api/users/${id}/cart/${productId}`);
+      setUser((prev) => ({
+        ...prev,
+        cart: prev.cart.filter((item) => item._id !== productId),
+      }));
+    } catch (err) {
+      alert(err.response?.data?.message || "Failed to remove from cart");
+    }
+  };
+
   const messageColumns = [
     { header: "Message", accessor: "message" },
     {
@@ -111,9 +134,27 @@ const EditUser = () => {
     },
   ];
 
+  const orderColumns = [
+    { header: "Order ID", accessor: "orderId" },
+    {
+      header: "Items",
+      accessor: "items",
+      render: (row) =>
+        row.items.map((item) => `${item.name} x${item.quantity}`).join(", "),
+    },
+    { header: "Total (₹)", accessor: "totalAmount" },
+    { header: "Payment", accessor: "paymentMethod" },
+    { header: "Status", accessor: "status" },
+    {
+      header: "Date",
+      accessor: "createdAt",
+      render: (row) => new Date(row.createdAt).toLocaleString(),
+    },
+  ];
+
   const actionData = [
     {
-      id: 2,
+      id: 1,
       label: isActive ? "Deactivate User" : "Activate User",
       button: (
         <Button
@@ -121,148 +162,108 @@ const EditUser = () => {
           disabled={updating}
           className="w-full"
         >
-          {updating
-            ? "Updating..."
-            : isActive
-            ? "Deactivate User"
-            : "Activate User"}
+          {updating ? "Updating..." : isActive ? "Deactivate" : "Activate"}
         </Button>
       ),
     },
   ];
-  const handleDeleteFromWishlist = async (productId) => {
-    try {
-      await axios.post(
-        `${BASE_URL}/api/user/auth/wishlist/remove`,
-        { productId },
-        {
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`, // adjust if you're storing the token differently
-          },
-        }
-      );
-
-      setUser((prevUser) => ({
-        ...prevUser,
-        wishlist: prevUser.wishlist.filter((item) => item._id !== productId),
-      }));
-    } catch (err) {
-      alert(
-        err.response?.data?.message || "Failed to remove item from wishlist"
-      );
-    }
-  };
-
-  const handleDeleteFromCart = async (productId) => {
-    try {
-      await axios.delete(`${BASE_URL}/api/users/${id}/cart/${productId}`);
-      setUser((prevUser) => ({
-        ...prevUser,
-        cart: prevUser.cart.filter((item) => item._id !== productId),
-      }));
-    } catch (err) {
-      alert(err.response?.data?.message || "Failed to remove item from cart");
-    }
-  };
 
   if (loading) return <LoadingPage />;
-  if (error)
-    return (
-      <p className="text-center text-red-600 dark:text-red-400 mt-8">{error}</p>
-    );
+  if (error) return <p className="text-center text-red-500">{error}</p>;
   if (!user) return <NoDataFound />;
 
   return (
-    <div className="min-h-auto bg-gray-100 dark:bg-gray-900 p-2 sm:p-4">
-      <div className="w-full flex justify-between items-start flex-wrap gap-2 mb-4">
-        <h2 className="text-sm sm:text-sm md:text-sm uppercase font-semibold text-gray-900 dark:text-white">
-          User Details
+    <div className="p-4 bg-gray-100 dark:bg-gray-900 min-h-screen space-y-6">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
+        <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          User: {user.name}
         </h2>
-        <h2 className="text-sm sm:text-lg md:text-sm uppercase font-semibold text-gray-900 dark:text-white">
-          Role: <span className="">{user.role || "N/A"}</span>
-        </h2>
+        <span className="text-sm text-gray-700 dark:text-gray-300">
+          Role: {role}
+        </span>
       </div>
 
-      <div className="flex flex-col md:flex-row md:space-x-6 space-y-6 md:space-y-0 max-w-full mx-auto">
-        {/* Form Section */}
-        <div className="flex-1 bg-white dark:bg-gray-800 p-4 rounded shadow">
-          <form className="space-y-6" onSubmit={handleSubmit}>
+      {/* User Form */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow space-y-4">
+          <form onSubmit={handleSubmit}>
             <div>
-              <label className="block font-medium text-gray-900 dark:text-gray-200 mb-1">
+              <label className="block text-gray-900 dark:text-white mb-1">
                 Name
               </label>
               <input
-                type="text"
+                className="w-full p-2 rounded border bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={name}
                 onChange={(e) => setName(e.target.value)}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                required
               />
             </div>
+
             <div>
-              <label className="block font-medium text-gray-900 dark:text-gray-200 mb-1">
+              <label className="block text-gray-900 dark:text-white mb-1">
                 Email
               </label>
               <input
                 type="email"
+                className="w-full p-2 rounded border bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
-                required
               />
             </div>
-            <div className="mt-4">
-              {actionData.map((action) => (
-                <div key={action.id} className="mb-3">
-                  <label className="block mb-1 text-gray-700 dark:text-gray-300">
-                    {action.label}
-                  </label>
-                  {action.button}
-                </div>
-              ))}
-            </div>
+
+            <div className="mt-4">{actionData.map((a) => a.button)}</div>
+            <Button type="submit" className="mt-4 w-full">
+              Save Changes
+            </Button>
           </form>
         </div>
 
-        {/* Messages Section */}
-        <div className="flex-1 bg-white dark:bg-gray-800 p-6 rounded shadow max-h-[400px] overflow-y-auto">
-          <h3 className="text-xl font-semibold mb-4 text-gray-900 dark:text-white">
-            User Messages
+        {/* Messages */}
+        <div className="bg-white dark:bg-gray-800 p-4 rounded shadow max-h-[400px] overflow-auto">
+          <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+            Messages
           </h3>
-          {messages.length === 0 ? (
-            <p className="text-gray-600 dark:text-gray-400">
-              No messages to show.
-            </p>
-          ) : (
+          {messages.length > 0 ? (
             <ReusableTable columns={messageColumns} data={messages} />
+          ) : (
+            <p className="text-gray-600 dark:text-gray-400">No messages</p>
           )}
         </div>
       </div>
-
-      {/* Additional Info */}
       <div className="max-w-full mx-auto mt-8 bg-white dark:bg-gray-800 p-6 rounded shadow">
         <h3 className="text-xl font-semibold mb-3 text-gray-900 dark:text-white">
           User Info
         </h3>
+
         <p className="text-gray-700 dark:text-gray-300">
-          City: <span className="font-medium">{user.city || "N/A"}</span>
+          City:{" "}
+          <span className="font-medium">{user.addresses?.city || "N/A"}</span>
         </p>
+
         <p className="text-gray-700 dark:text-gray-300">
-          Country: <span className="font-medium">{user.country || "N/A"}</span>
+          Country:{" "}
+          <span className="font-medium">
+            {user.addresses?.country || "N/A"}
+          </span>
         </p>
+
         <p className="text-gray-700 dark:text-gray-300">
           Role:{" "}
           <span className="font-medium capitalize">{user.role || "N/A"}</span>
         </p>
+
+        <p className="text-gray-700 dark:text-gray-300">
+          Contact:{" "}
+          <span className="font-medium">{user.addresses.contact || "N/A"}</span>
+        </p>
       </div>
 
-      {/* Wishlist Section */}
-      <div className="max-w-full mx-auto mt-4 bg-white dark:bg-gray-800 p-2 rounded shadow">
-        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+      {/* Wishlist */}
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
           Wishlist ({user.wishlist?.length || 0})
         </h3>
-        {user.wishlist && user.wishlist.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+        {user.wishlist?.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {user.wishlist.map((item) => (
               <ProductCard
                 key={item._id}
@@ -273,32 +274,40 @@ const EditUser = () => {
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            No items in wishlist.
-          </p>
+          <p className="text-gray-600 dark:text-gray-400">No items</p>
         )}
       </div>
 
-      {/* Cart Section */}
-      <div className="max-w-full mx-auto mt-4 bg-white dark:bg-gray-800 p-2 rounded shadow">
-        <h3 className="text-lg font-semibold mb-2 text-gray-900 dark:text-white">
+      {/* Cart */}
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
           Cart ({user.cart?.length || 0})
         </h3>
-        {user.cart && user.cart.length > 0 ? (
-          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
+        {user.cart?.length > 0 ? (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
             {user.cart.map((item) => (
               <ProductCard
                 key={item._id}
-                product={item}
+                product={item.product}
                 onDelete={handleDeleteFromCart}
                 type="cart"
               />
             ))}
           </div>
         ) : (
-          <p className="text-sm text-gray-600 dark:text-gray-400">
-            No items in cart.
-          </p>
+          <p className="text-gray-600 dark:text-gray-400">No items</p>
+        )}
+      </div>
+
+      {/* Orders */}
+      <div className="bg-white dark:bg-gray-800 p-4 rounded shadow">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-2">
+          Orders ({orders.length})
+        </h3>
+        {orders.length > 0 ? (
+          <ReusableTable columns={orderColumns} data={orders} />
+        ) : (
+          <p className="text-gray-600 dark:text-gray-400">No orders found.</p>
         )}
       </div>
     </div>
