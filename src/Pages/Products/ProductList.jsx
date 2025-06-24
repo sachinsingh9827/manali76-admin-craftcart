@@ -92,6 +92,11 @@ const ProductList = () => {
       render: (row) => `₹${row.price}`,
     },
     {
+      header: "Stock",
+      accessor: "stock",
+      render: (row) => row.stock,
+    },
+    {
       header: "Author",
       accessor: "createdBy.name",
       render: (row) => row.createdBy?.name || "N/A",
@@ -183,6 +188,14 @@ const ProductList = () => {
                 </span>
                 <span className="text-gray-700 dark:text-gray-300">
                   ₹{product.price}
+                </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="font-semibold text-gray-900 dark:text-gray-100">
+                  Stock:
+                </span>
+                <span className="text-gray-700 dark:text-gray-300">
+                  {product.stock}
                 </span>
               </div>
             </div>
