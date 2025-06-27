@@ -34,7 +34,7 @@ const VideoList = () => {
     if (!window.confirm("Are you sure you want to delete this video?")) return;
 
     try {
-      const res = await axios.delete(`${BASE_URL}/api/videos/${id}`);
+      const res = await axios.delete(`${BASE_URL}/api/delivery-video/${id}`);
       if (res.data.success) {
         toast.success("Video deleted successfully");
         setVideos((prev) => prev.filter((v) => v._id !== id));
