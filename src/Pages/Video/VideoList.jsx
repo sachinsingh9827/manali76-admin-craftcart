@@ -67,7 +67,7 @@ const VideoList = () => {
       <ul className="space-y-6">
         {videos.map((video) => {
           const order = video.orderId || {};
-          const user = order.customer || order.userId; // adjust based on your schema
+          const userId = order.userId;
 
           return (
             <li
@@ -79,9 +79,9 @@ const VideoList = () => {
                   <strong>Order ID:</strong>{" "}
                   <span className="text-blue-600">{order._id}</span>
                 </p>
-                {user && (
+                {userId && (
                   <p>
-                    <strong>Customer:</strong> {user.name} ({user.email})
+                    <strong>Customer ID:</strong> {userId}
                   </p>
                 )}
                 {order.deliveryAddress && (
@@ -109,7 +109,7 @@ const VideoList = () => {
                   Uploaded At: {new Date(video.createdAt).toLocaleString()}
                 </p>
                 <video
-                  src={video.video.url}
+                  src={video.videoUrl}
                   controls
                   className="w-full max-w-md rounded mt-2"
                 />
