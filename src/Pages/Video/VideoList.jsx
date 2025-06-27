@@ -13,7 +13,7 @@ const VideoList = () => {
 
   const fetchVideos = async () => {
     try {
-      const res = await axios.get(`${BASE_URL}/api/videos`);
+      const res = await axios.get(`${BASE_URL}/api/delivery-video`);
       if (res.data.success) {
         setVideos(res.data.data || []);
         if (!res.data.data || res.data.data.length === 0) {
