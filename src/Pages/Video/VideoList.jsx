@@ -109,8 +109,10 @@ const VideoList = () => {
                   Uploaded At: {new Date(video.createdAt).toLocaleString()}
                 </p>
                 <video
-                  src={video.videoUrl}
+                  src={video.video.url}
                   controls
+                  preload="metadata"
+                  loading="lazy"
                   className="w-full max-w-md rounded mt-2"
                 />
               </div>
