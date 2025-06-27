@@ -35,11 +35,6 @@ const ProductVideos = () => {
           Video List
         </NavLink>
 
-        {/* Add New Video */}
-        <NavLink to="new" className={linkClass}>
-          Add New Video
-        </NavLink>
-
         {/* View Video - requires productId */}
         <NavLink
           to={productId ? location.pathname : "/admin/videos/:id"}
