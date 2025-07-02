@@ -53,6 +53,7 @@ import EditOrder from "./Pages/Orders/ViewOrder";
 import Reviews from "./Pages/Reviews/Reviews";
 import ReviewList from "./Pages/Reviews/ReviewList";
 import EditReview from "./Pages/Reviews/EditReview";
+import Unauthorized from "./components/Reusable/Unauthorized";
 
 function App() {
   useThemeEffect();
@@ -84,7 +85,7 @@ function App() {
         <Route path="/verify-email" element={<VerifyEmailPage />} />
         <Route path="/signup" element={<SignupPage />} />
         <Route path="/forget-password" element={<ForgetPasswordPage />} />
-
+        <Route path="/unauthorized" element={<Unauthorized />} />
         {/* Protected Admin Routes */}
         <Route
           path="/admin"

@@ -1,17 +1,17 @@
-// ProtectedRoute.jsx
 import React, { useEffect, useState } from "react";
 import { useLocation, Navigate } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
-  const [authorized, setAuthorized] = useState(null); // null = checking
+  const [authStatus, setAuthStatus] = useState("checking"); // "checking", "authorized", "unauthorized", "unauthenticated"
 
   useEffect(() => {
     const token = localStorage.getItem("token");
+    const userData = JSON.parse(localStorage.getItem("user"));
 
-    if (!token) {
-      setAuthorized(false);
+    if (!token || !userData) {
+      setAuthStatus("unauthenticated");
       return;
     }
 
@@ -20,27 +20,32 @@ const ProtectedRoute = ({ children }) => {
       const now = Math.floor(Date.now() / 1000);
 
       if (decoded.exp && decoded.exp > now) {
-        setAuthorized(true);
+        if (userData.role === "admin") {
+          setAuthStatus("authorized");
+        } else {
+          setAuthStatus("unauthorized"); //  not admin
+        }
       } else {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        setAuthorized(false);
+        localStorage.clear();
+        setAuthStatus("unauthenticated");
       }
     } catch (err) {
-      localStorage.removeItem("token");
-      localStorage.removeItem("user");
-      setAuthorized(false);
+      localStorage.clear();
+      setAuthStatus("unauthenticated");
     }
-  }, [location.pathname]); // re-run on every page change
+  }, [location.pathname]);
 
-  if (authorized === null) {
-    return <div>Checking token...</div>;
-  }
+  // Loading
+  if (authStatus === "checking") return <div>Checking token...</div>;
 
-  if (!authorized) {
-    return <Navigate to="/" replace />;
-  }
+  // No token or expired
+  if (authStatus === "unauthenticated") return <Navigate to="/" replace />;
 
+  //  Has token but not admin
+  if (authStatus === "unauthorized")
+    return <Navigate to="/unauthorized" replace />;
+
+  // Authorized
   return children;
 };
 
