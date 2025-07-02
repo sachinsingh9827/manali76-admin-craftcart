@@ -4,14 +4,13 @@ import { jwtDecode } from "jwt-decode";
 
 const ProtectedRoute = ({ children }) => {
   const location = useLocation();
-  const [authStatus, setAuthStatus] = useState("checking"); // "checking", "authorized", "unauthorized", "unauthenticated"
+  const [authorized, setAuthorized] = useState(null); // null = checking
 
   useEffect(() => {
     const token = localStorage.getItem("token");
-    const userData = JSON.parse(localStorage.getItem("user"));
 
-    if (!token || !userData) {
-      setAuthStatus("unauthenticated");
+    if (!token) {
+      setAuthorized(false);
       return;
     }
 
@@ -19,33 +18,29 @@ const ProtectedRoute = ({ children }) => {
       const decoded = jwtDecode(token);
       const now = Math.floor(Date.now() / 1000);
 
-      if (decoded.exp && decoded.exp > now) {
-        if (userData.role === "admin") {
-          setAuthStatus("authorized");
-        } else {
-          setAuthStatus("unauthorized"); //  not admin
-        }
+      // ✅ Check expiration and role
+      if (decoded.exp > now && decoded.role === "admin") {
+        setAuthorized(true);
       } else {
-        localStorage.clear();
-        setAuthStatus("unauthenticated");
+        localStorage.removeItem("token");
+        localStorage.removeItem("user");
+        setAuthorized(false);
       }
     } catch (err) {
-      localStorage.clear();
-      setAuthStatus("unauthenticated");
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setAuthorized(false);
     }
   }, [location.pathname]);
 
-  // Loading
-  if (authStatus === "checking") return <div>Checking token...</div>;
+  if (authorized === null) {
+    return <div>Checking token...</div>;
+  }
 
-  // No token or expired
-  if (authStatus === "unauthenticated") return <Navigate to="/" replace />;
+  if (!authorized) {
+    return <Navigate to="/unauthorized" replace />; // 👈 Redirect to unauthorized page
+  }
 
-  //  Has token but not admin
-  if (authStatus === "unauthorized")
-    return <Navigate to="/unauthorized" replace />;
-
-  // Authorized
   return children;
 };
 
